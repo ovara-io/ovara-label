@@ -44,9 +44,13 @@
   "license": "MIT",
   "packageManager": "yarn@4.9.1",
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.7",
     "electron-squirrel-startup": "^1.0.1",
+    "postcss": "^8.5.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.7",
+    "wouter": "^3.7.0",
     "zustand": "^5.0.3"
   }
 }
