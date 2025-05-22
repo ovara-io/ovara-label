@@ -1,14 +1,23 @@
 import React from "react";
-import { Router, Route, Switch } from "wouter";
+import { Route, Switch } from "wouter";
 import { ProjectListPage } from "./pages/ProjectListPage";
 import { ProjectPage } from "./pages/ProjectPage";
+import { Navbar } from "@/components/Navbar";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const App = () => {
   return (
-    <Switch>
-      <Route path="/" component={ProjectListPage} />
-      <Route path="/project/:id" component={ProjectPage} />
-      <Route>404 – Not Found</Route>
-    </Switch>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="flex h-screen flex-col">
+        <Navbar />
+
+        <main className="flex-1 overflow-y-auto p-2">
+          <Switch>
+            <Route path="/" component={ProjectListPage} />
+            <Route path="/project/:id" component={ProjectPage} />
+          </Switch>
+        </main>
+      </div>
+    </ThemeProvider>
   );
 };

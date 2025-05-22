@@ -1,9 +1,42 @@
 import React, { useState } from "react";
 import { nanoid } from "nanoid";
 import { useLocation } from "wouter";
-import { ModelType, Project } from "../classes";
-import { useOvaraStore } from "../hooks/useOvaraStore";
+import { ModelType, Project } from "@/classes";
+import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useShallow } from "zustand/react/shallow";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+
+const ProjectCard = ({ project }: { project: Project }) => {
+  const [, navigate] = useLocation();
+
+  const handleSelect = (projectId: string) => {
+    navigate(`/project/${projectId}`);
+  };
+
+  return (
+    <li
+      className="cursor-pointer rounded border p-4"
+      onClick={() => handleSelect(project.id)}
+    >
+      <div className="text-lg font-semibold">{project.name}</div>
+      <div className="text-muted-foreground text-sm">
+        Type: {project.modelType} | Images: {project.numImages ?? 0} | Labelled:{" "}
+        {project.numLabelled ?? 0}
+      </div>
+      <div className="text-muted-foreground text-xs">
+        Created: {new Date(project.createdAt).toLocaleString()}
+      </div>
+    </li>
+  );
+};
 
 export const ProjectListPage = () => {
   const [projects, addProject] = useOvaraStore(
@@ -12,64 +45,59 @@ export const ProjectListPage = () => {
 
   const [name, setName] = useState("");
   const [modelType, setModelType] = useState<ModelType>("detection");
-  const [, navigate] = useLocation();
 
   const handleCreate = () => {
+    const now = new Date().toISOString();
     const newProject: Project = {
       id: nanoid(),
       name,
       imageDir: "",
       modelType,
       classes: [],
+      createdAt: now,
+      updatedAt: now,
+      numImages: 0,
+      numLabelled: 0,
     };
     addProject(newProject);
     setName("");
   };
 
-  const handleSelect = (projectId: string) => {
-    navigate(`/project/${projectId}`);
-  };
-
   return (
-    <div className="space-y-6 p-4">
-      <h1 className="text-xl font-bold">Select a Project</h1>
+    <div>
+      <div>
+        <h1 className="py-2 text-lg font-bold">Create New Project</h1>
+        <div className={"flex gap-2"}>
+          <Input
+            placeholder="Project name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Select
+            value={modelType}
+            onValueChange={(value: ModelType) => setModelType(value)}
+          >
+            <SelectTrigger className="min-w-[120px]">
+              <SelectValue placeholder="Select model type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="detection">Detection</SelectItem>
+              <SelectItem value="pose">Pose</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button className="rounded" onClick={handleCreate}>
+            Create
+          </Button>
+        </div>
+      </div>
+      <h1 className={"py-2 text-lg font-bold"}>Select a Project</h1>
 
       <ul className="space-y-2">
         {projects.map((project) => (
-          <li key={project.id}>
-            <button
-              className="rounded bg-gray-200 p-2 hover:bg-blue-100"
-              onClick={() => handleSelect(project.id)}
-            >
-              {project.name} ({project.modelType})
-            </button>
-          </li>
+          <ProjectCard project={project} key={project.id} />
         ))}
       </ul>
-
-      <div className="border-t pt-6">
-        <h2 className="text-lg font-semibold">Create New Project</h2>
-        <input
-          className="mr-2 border p-2"
-          placeholder="Project name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <select
-          className="mr-2 border p-2"
-          value={modelType}
-          onChange={(e) => setModelType(e.target.value as ModelType)}
-        >
-          <option value="detection">Detection</option>
-          <option value="pose">Pose</option>
-        </select>
-        <button
-          className="rounded bg-green-500 p-2 text-white"
-          onClick={handleCreate}
-        >
-          Create
-        </button>
-      </div>
     </div>
   );
 };
