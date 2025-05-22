@@ -7,6 +7,7 @@ declare global {
       readDir(path: string): Promise<string[]>;
       readFile(path: string): Promise<string>;
       writeFile(path: string, contents: string): Promise<void>;
+      getImagePaths(dirPath: string): Promise<string[]>;
     };
   }
 }

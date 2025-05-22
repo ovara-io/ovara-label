@@ -6,6 +6,7 @@ interface ProjectStore {
   projects: Project[];
   addProject: (project: Project) => void;
   updateProject: (id: string, partial: Partial<Project>) => void;
+  updateImagePaths: (id: string, paths: string[]) => void;
 }
 
 export const useOvaraStore = create<ProjectStore>()(
@@ -16,6 +17,12 @@ export const useOvaraStore = create<ProjectStore>()(
         set((state) => ({
           projects: [...state.projects, project],
         })),
+      updateImagePaths: (id: string, paths: string[]) =>
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === id ? { ...p, imagePaths: paths } : p,
+          ),
+        })),
       updateProject: (id, partial) =>
         set((state) => {
           const index = state.projects.findIndex((p) => p.id === id);
@@ -24,6 +31,7 @@ export const useOvaraStore = create<ProjectStore>()(
           const updated = {
             ...existing,
             ...partial,
+            updatedAt: new Date().toISOString(),
           } as Project;
 
           const newProjects = [...state.projects];

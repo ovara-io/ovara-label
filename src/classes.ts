@@ -17,6 +17,8 @@ interface BaseProject {
   numImages?: number;
   updatedAt?: string;
   createdAt: string;
+  imagePaths?: string[];
+  annotations: ImageAnnotation[];
 }
 
 export interface DetectionProject extends BaseProject {

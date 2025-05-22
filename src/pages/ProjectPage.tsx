@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { useParams } from "wouter";
 import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useShallow } from "zustand/react/shallow";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { DetectionClass, PoseClass } from "@/classes";
-import { nanoid } from "nanoid";
 import { pickFolder } from "@/ipc-renderer";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { UpsertPoseClass } from "@/components/UpsertPoseClass";
+import { UpsertDetectionClass } from "@/components/UpsertDetectionClass";
+import { ImagePreviews } from "@/components/ImagePreviews";
 
 export const ProjectPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,28 +19,10 @@ export const ProjectPage = () => {
 
   const project = projects.find((p) => p.id === id);
   const [imageDir, setImageDir] = useState(project?.imageDir ?? "");
-  const [newClassName, setNewClassName] = useState("");
-  const [newKeypoint, setNewKeypoint] = useState<string[]>([]);
 
-  const handleAddClass = () => {
-    if (!newClassName.trim()) return;
-
-    const newClass =
-      project.modelType === "pose"
-        ? {
-            id: nanoid(),
-            name: newClassName,
-            keypoints: [...newKeypoint],
-          }
-        : { id: nanoid(), name: newClassName };
-
-    updateProject(project.id, {
-      classes: [...project.classes, newClass] as PoseClass[] | DetectionClass[],
-    });
-
-    setNewClassName("");
-    setNewKeypoint([]);
-  };
+  if (!project) {
+    return <div className="p-4 text-red-500">Project not found.</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -74,48 +57,14 @@ export const ProjectPage = () => {
 
       <Separator />
 
-      <div className="space-y-4">
-        <Label>New Class Name</Label>
-        <Input
-          value={newClassName}
-          onChange={(e) => setNewClassName(e.target.value)}
-        />
-
-        {project.modelType === "pose" && (
-          <div className="space-y-2">
-            <Label>Keypoints (comma-separated)</Label>
-            <Input
-              placeholder="e.g. head,left_shoulder,right_shoulder"
-              onChange={(e) =>
-                setNewKeypoint(
-                  e.target.value
-                    .split(",")
-                    .map((k) => k.trim())
-                    .filter(Boolean),
-                )
-              }
-            />
-          </div>
-        )}
-
-        <Button onClick={handleAddClass}>Add Class</Button>
-      </div>
+      {project.modelType === "pose" ? (
+        <UpsertPoseClass project={project} onUpdate={updateProject} />
+      ) : (
+        <UpsertDetectionClass project={project} onUpdate={updateProject} />
+      )}
 
       <Separator />
-
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">Defined Classes</h2>
-        {project.classes.map((c) => (
-          <div key={c.id} className="rounded border p-2">
-            <strong>{c.name}</strong>
-            {project.modelType === "pose" && "keypoints" in c && (
-              <div className="text-muted-foreground text-sm">
-                Keypoints: {c.keypoints.join(", ")}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
     </div>
   );
 };
