@@ -13,26 +13,33 @@ import { ImagePreviews } from "@/components/ImagePreviews";
 
 export const ProjectPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [projects, updateProject] = useOvaraStore(
-    useShallow((state) => [state.projects, state.updateProject]),
+
+  const [projects, updateProjectImageDir] = useOvaraStore(
+    useShallow((state) => [state.projects, state.updateProjectImageDir]),
   );
 
   const project = projects.find((p) => p.id === id);
   const [imageDir, setImageDir] = useState(project?.imageDir ?? "");
 
-  if (!project) {
-    return <div className="p-4 text-red-500">Project not found.</div>;
-  }
+  if (!project) return null;
+
+  const handleUpdateImageDir = async () => {
+    const path = await pickFolder();
+    if (path) {
+      setImageDir(path);
+      updateProjectImageDir(project.id, path);
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       <h1 className="text-2xl font-bold">{project.name}</h1>
       <p className="text-muted-foreground">Model type: {project.modelType}</p>
 
       <Separator />
 
       <div className="space-y-4">
-        <Label>Image Directory</Label>
+        <h2 className={"text-xl"}>Image Directory</h2>
         <div className="flex items-center gap-2">
           <Input
             className="flex-1"
@@ -40,16 +47,7 @@ export const ProjectPage = () => {
             value={imageDir}
             placeholder="No folder selected"
           />
-          <Button
-            variant="outline"
-            onClick={async () => {
-              const path = await pickFolder();
-              if (path) {
-                setImageDir(path);
-                updateProject(project.id, { imageDir: path });
-              }
-            }}
-          >
+          <Button variant="outline" onClick={handleUpdateImageDir}>
             Pick Folder
           </Button>
         </div>
@@ -58,12 +56,13 @@ export const ProjectPage = () => {
       <Separator />
 
       {project.modelType === "pose" ? (
-        <UpsertPoseClass project={project} onUpdate={updateProject} />
+        <UpsertPoseClass project={project} />
       ) : (
-        <UpsertDetectionClass project={project} onUpdate={updateProject} />
+        <UpsertDetectionClass project={project} />
       )}
 
       <Separator />
+
       <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
     </div>
   );

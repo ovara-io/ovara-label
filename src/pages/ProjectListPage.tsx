@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
 const ProjectCard = ({ project }: { project: Project }) => {
   const [, navigate] = useLocation();
@@ -21,18 +22,25 @@ const ProjectCard = ({ project }: { project: Project }) => {
     navigate(`/project/${projectId}`);
   };
 
+  const numLabelled = Object.values(project.annotations).filter(
+    (a) => a.length > 0,
+  ).length;
+
   return (
     <li
-      className="cursor-pointer rounded border p-4"
+      className="hover:bg-muted flex cursor-pointer items-center justify-between rounded border p-4 transition"
       onClick={() => handleSelect(project.id)}
     >
-      <div className="text-lg font-semibold">{project.name}</div>
-      <div className="text-muted-foreground text-sm">
-        Type: {project.modelType} | Images: {project.numImages ?? 0} | Labelled:{" "}
-        {project.numLabelled ?? 0}
+      <div>
+        <div className="truncate text-xl font-semibold">{project.name}</div>
+        <div className="text-muted-foreground truncate">
+          Type: {project.modelType} | Images: {project.imagePaths.length ?? 0} |
+          Labelled: {numLabelled ?? 0}
+        </div>
       </div>
-      <div className="text-muted-foreground text-xs">
-        Created: {new Date(project.createdAt).toLocaleString()}
+      <div className="text-muted-foreground space-y-1 text-right">
+        <div>Created: {new Date(project.createdAt).toLocaleString()}</div>
+        <div>Updated: {new Date(project.updatedAt).toLocaleString()}</div>
       </div>
     </li>
   );
@@ -56,17 +64,17 @@ export const ProjectListPage = () => {
       classes: [],
       createdAt: now,
       updatedAt: now,
-      numImages: 0,
-      numLabelled: 0,
+      imagePaths: [],
+      annotations: {},
     };
     addProject(newProject);
     setName("");
   };
 
   return (
-    <div>
+    <div className={"space-y-6 p-4"}>
       <div>
-        <h1 className="py-2 text-lg font-bold">Create New Project</h1>
+        <h1 className="pb-2 text-2xl font-bold">Create New Project</h1>
         <div className={"flex gap-2"}>
           <Input
             placeholder="Project name"
@@ -85,13 +93,14 @@ export const ProjectListPage = () => {
               <SelectItem value="pose">Pose</SelectItem>
             </SelectContent>
           </Select>
-
           <Button className="rounded" onClick={handleCreate}>
             Create
           </Button>
         </div>
       </div>
-      <h1 className={"py-2 text-lg font-bold"}>Select a Project</h1>
+      <Separator />
+
+      <h1 className={"text-2xl font-bold"}>Select a Project</h1>
 
       <ul className="space-y-2">
         {projects.map((project) => (

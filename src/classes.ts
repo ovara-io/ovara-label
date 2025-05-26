@@ -9,16 +9,18 @@ export type ModelType = "detection" | "pose";
 
 export type Project = DetectionProject | PoseProject;
 
+type AnnotationsByImage = {
+  [imagePath: string]: Annotation[];
+};
+
 interface BaseProject {
   id: string;
   name: string;
   imageDir: string;
-  numLabelled?: number;
-  numImages?: number;
   updatedAt?: string;
   createdAt: string;
-  imagePaths?: string[];
-  annotations: ImageAnnotation[];
+  imagePaths: string[];
+  annotations: AnnotationsByImage;
 }
 
 export interface DetectionProject extends BaseProject {
@@ -41,7 +43,11 @@ export interface PoseClass {
   id: string;
   name: string;
   color?: string;
-  keypoints: string[];
+  keypoints: Keypoint[];
+}
+export interface Keypoint {
+  id: string;
+  name: string;
 }
 
 export type Annotation = DetectionAnnotation | PoseAnnotation;
@@ -52,17 +58,12 @@ export interface DetectionAnnotation {
 }
 
 export interface PoseAnnotation extends DetectionAnnotation {
-  keypoints: Keypoint[];
+  keypoints: KeypointAnnotation[];
 }
 
-export interface Keypoint {
-  name: string;
+export interface KeypointAnnotation {
+  id: string;
   x: number;
   y: number;
   visible: Visible;
-}
-
-export interface ImageAnnotation {
-  imageFilename: string;
-  annotations: Annotation[];
 }

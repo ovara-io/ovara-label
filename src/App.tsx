@@ -11,8 +11,7 @@ export const App = () => {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <div className="flex h-screen flex-col">
         <Navbar />
-
-        <main className="flex-1 overflow-y-auto">
+        <main className="w-full flex-1 overflow-y-auto">
           <Switch>
             <Route path="/" component={ProjectListPage} />
             <Route path="/project/:id" component={ProjectPage} />

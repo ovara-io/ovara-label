@@ -14,8 +14,8 @@ export const Navbar = () => {
       </div>
 
       {/* Centered title */}
-      <h1 className="text-lg font-light">
-        <span className={"font-black"}>OVARA</span>Label
+      <h1 className="font-oswald text-3xl font-light">
+        <span className={"font-bold"}>OVARA</span>Label
       </h1>
 
       {/* Right-aligned theme toggle */}

@@ -1,76 +1,73 @@
 import React, { useState } from "react";
-import { PoseClass, PoseProject } from "@/classes";
+import { PoseClass, PoseProject, Keypoint } from "@/classes";
 import { nanoid } from "nanoid";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
+import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useShallow } from "zustand/react/shallow";
 
 interface Props {
   project: PoseProject;
-  onUpdate: (id: string, patch: Partial<PoseProject>) => void;
 }
 
-export const UpsertPoseClass = ({ project, onUpdate }: Props) => {
+export const UpsertPoseClass = ({ project }: Props) => {
+  const [addPoseClass, deletePoseClass, addPoseKeypoint, deletePoseKeypoint] =
+    useOvaraStore(
+      useShallow((s) => [
+        s.addPoseClass,
+        s.deletePoseClass,
+        s.addPoseKeypoint,
+        s.deletePoseKeypoint,
+      ]),
+    );
+
   const [newClassName, setNewClassName] = useState("");
   const [newKeypoints, setNewKeypoints] = useState<Record<string, string>>({});
 
   const handleAddClass = () => {
     if (!newClassName.trim()) return;
-
     const newClass: PoseClass = {
       id: nanoid(),
       name: newClassName,
       keypoints: [],
     };
-
-    onUpdate(project.id, { classes: [...project.classes, newClass] });
+    addPoseClass(project.id, newClass);
     setNewClassName("");
   };
 
   const handleDeleteClass = (classId: string) => {
-    onUpdate(project.id, {
-      classes: project.classes.filter((c) => c.id !== classId),
-    });
+    deletePoseClass(project.id, classId);
   };
 
   const handleAddKeypoint = (classId: string) => {
-    const keypoint = newKeypoints[classId]?.trim();
-    if (!keypoint) return;
-
-    const updatedClasses = project.classes.map((c) =>
-      c.id === classId ? { ...c, keypoints: [...c.keypoints, keypoint] } : c,
-    );
-
-    onUpdate(project.id, { classes: updatedClasses });
+    const name = newKeypoints[classId]?.trim();
+    if (!name) return;
+    const newKeypoint: Keypoint = { id: nanoid(), name };
+    addPoseKeypoint(project.id, classId, newKeypoint);
     setNewKeypoints((prev) => ({ ...prev, [classId]: "" }));
   };
 
-  const handleDeleteKeypoint = (classId: string, keypoint: string) => {
-    const updatedClasses = project.classes.map((c) =>
-      c.id === classId
-        ? { ...c, keypoints: c.keypoints.filter((k) => k !== keypoint) }
-        : c,
-    );
-
-    onUpdate(project.id, { classes: updatedClasses });
+  const handleDeleteKeypoint = (classId: string, keypointId: string) => {
+    deletePoseKeypoint(project.id, classId, keypointId);
   };
 
   return (
     <div className="space-y-4">
-      <Label>New Class Name</Label>
+      <h2 className={"text-xl"}>New Class Name</h2>
       <Input
         value={newClassName}
         onChange={(e) => setNewClassName(e.target.value)}
       />
       <p className="text-muted-foreground text-sm">
-        Keypoints will be defined after creating the class.
+        Keypoints to be defined after creating the class.
       </p>
       <Button onClick={handleAddClass}>Add Class</Button>
 
       <Separator />
 
-      <h2 className="text-lg font-semibold">Defined Classes</h2>
+      <h2 className="text-xl">Defined Classes</h2>
       {project.classes.map((c) => (
         <div key={c.id} className="space-y-2 rounded border p-3">
           <div className="flex items-center justify-between">
@@ -86,12 +83,12 @@ export const UpsertPoseClass = ({ project, onUpdate }: Props) => {
 
           <ul className="text-muted-foreground space-y-1 text-sm">
             {c.keypoints.map((kpt) => (
-              <li key={kpt} className="flex items-center justify-between">
-                <span>{kpt}</span>
+              <li key={kpt.id} className="flex items-center justify-between">
+                <span>{kpt.name}</span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleDeleteKeypoint(c.id, kpt)}
+                  onClick={() => handleDeleteKeypoint(c.id, kpt.id)}
                 >
                   −
                 </Button>

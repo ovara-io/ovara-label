@@ -5,36 +5,37 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { nanoid } from "nanoid";
+import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useShallow } from "zustand/react/shallow";
 
 interface Props {
   project: DetectionProject;
-  onUpdate: (id: string, patch: Partial<DetectionProject>) => void;
 }
 
-export const UpsertDetectionClass = ({ project, onUpdate }: Props) => {
+export const UpsertDetectionClass = ({ project }: Props) => {
   const [newClassName, setNewClassName] = useState("");
+
+  const [addDetectionClass, deleteDetectionClass] = useOvaraStore(
+    useShallow((s) => [s.addDetectionClass, s.deleteDetectionClass]),
+  );
 
   const handleAddClass = () => {
     if (!newClassName.trim()) return;
-
     const newClass: DetectionClass = {
       id: nanoid(),
       name: newClassName,
     };
-
-    onUpdate(project.id, { classes: [...project.classes, newClass] });
+    addDetectionClass(project.id, newClass);
     setNewClassName("");
   };
 
   const handleDeleteClass = (classId: string) => {
-    onUpdate(project.id, {
-      classes: project.classes.filter((c) => c.id !== classId),
-    });
+    deleteDetectionClass(project.id, classId);
   };
 
   return (
     <div className="space-y-4">
-      <Label>New Class Name</Label>
+      <h2 className={"text-xl"}>New Class Name</h2>
       <Input
         value={newClassName}
         onChange={(e) => setNewClassName(e.target.value)}
@@ -43,7 +44,7 @@ export const UpsertDetectionClass = ({ project, onUpdate }: Props) => {
 
       <Separator />
 
-      <h2 className="text-lg font-semibold">Defined Classes</h2>
+      <h2 className="text-xl">Defined Classes</h2>
       {project.classes.map((c) => (
         <div key={c.id} className="flex justify-between rounded border p-3">
           <strong>{c.name}</strong>

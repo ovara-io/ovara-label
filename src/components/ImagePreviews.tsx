@@ -9,6 +9,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ImagePreviewsProps {
   projectId: string;
@@ -19,19 +26,17 @@ const IMAGES_PER_PAGE = 6;
 
 export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
   const [page, setPage] = useState(1);
+  const [filter, setFilter] = useState<"all" | "labelled" | "unlabelled">(
+    "all",
+  );
   const [, navigate] = useLocation();
 
-  const [project, updateProject] = useOvaraStore(
+  const [project, updateProjectImagePaths] = useOvaraStore(
     useShallow((state) => {
       const p = state.projects.find((p) => p.id === projectId);
-      return [p, state.updateProject];
+      return [p, state.updateProjectImagePaths];
     }),
   );
-
-  const images = project?.imagePaths ?? [];
-  const totalPages = Math.ceil(images.length / IMAGES_PER_PAGE);
-  const start = (page - 1) * IMAGES_PER_PAGE;
-  const currentImages = images.slice(start, start + IMAGES_PER_PAGE);
 
   useEffect(() => {
     if (!imageDir) return;
@@ -39,32 +44,75 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
     window.electron
       .getImagePaths(imageDir)
       .then((paths) => {
-        updateProject(projectId, { imagePaths: paths });
+        updateProjectImagePaths(projectId, paths);
         setPage(1);
       })
       .catch((err) => {
         console.error("Failed to get image paths:", err);
-        updateProject(projectId, { imagePaths: [] });
+        updateProjectImagePaths(projectId, []);
       });
-  }, [imageDir, projectId, updateProject]);
+  }, [imageDir, projectId, updateProjectImagePaths]);
 
   if (!project) return null;
 
+  const annotations = project.annotations ?? {};
+  const isLabelled = (path: string) => (annotations[path]?.length ?? 0) > 0;
+
+  const filteredImages = project.imagePaths.filter((path) => {
+    if (filter === "all") return true;
+    if (filter === "labelled") return isLabelled(path);
+    if (filter === "unlabelled") return !isLabelled(path);
+    return true;
+  });
+
+  const totalPages = Math.ceil(filteredImages.length / IMAGES_PER_PAGE);
+  const start = (page - 1) * IMAGES_PER_PAGE;
+  const currentImages = filteredImages.slice(start, start + IMAGES_PER_PAGE);
+
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Image Previews</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl">Image Previews</h2>
+        <Select
+          value={filter}
+          onValueChange={(val) => {
+            setFilter(val as "all" | "labelled" | "unlabelled");
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Filter" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="labelled">Labelled</SelectItem>
+            <SelectItem value="unlabelled">Unlabelled</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6">
         {currentImages.map((imgPath, i) => {
-          const index = start + i;
+          const index = project.imagePaths.indexOf(imgPath);
+          const numLabels = annotations[imgPath]?.length ?? 0;
+
           return (
-            <img
+            <div
               key={imgPath}
-              src={imgPath}
-              alt={`image-${index}`}
-              className="h-32 w-full cursor-pointer rounded border object-contain"
+              className="relative cursor-pointer"
               onClick={() => navigate(`/project/${projectId}/image/${index}`)}
-            />
+            >
+              <img
+                src={imgPath}
+                alt={`image-${index}`}
+                className="h-32 w-full object-contain"
+              />
+              {numLabels > 0 && (
+                <div className="absolute-center text-shadow-bold px-2 py-0.5 text-4xl text-green-400">
+                  [{numLabels}]
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
