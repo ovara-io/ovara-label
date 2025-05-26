@@ -1,4 +1,4 @@
-import { create } from "zustand/index";
+import { create } from "zustand";
 
 interface KeypointState {
   keypoints: any[];
@@ -7,7 +7,7 @@ interface KeypointState {
   points: any[];
 }
 
-type ClickMode = "drag" | "click-twice";
+export type ClickMode = "drag" | "click";
 
 interface ImagePageStore {
   selectedClassId: string | null;

@@ -7,6 +7,7 @@ import {
   Rect,
   Stage,
   Text,
+  Circle,
 } from "react-konva";
 import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useImagePageStore } from "@/hooks/useImagePageStore";
@@ -57,9 +58,10 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
 
   const handleMouseDown = (e: any) => {
     const pos = e.target.getStage().getPointerPosition();
-    if (!pos) return;
+    if (!pos || e.evt.button !== 0 || e.evt.ctrlKey) return;
 
-    if (placingKeypoints && e.evt.button === 0) {
+    // === Place keypoints
+    if (placingKeypoints) {
       const current = placingKeypoints.keypoints[placingKeypoints.currentIdx];
       const updated = [
         ...placingKeypoints.points,
@@ -91,19 +93,67 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       return;
     }
 
-    if (clickMode !== "drag" || e.evt.button !== 0 || !selectedClassId) return;
+    // === Draw bounding box
+    if (!selectedClassId) return;
 
-    setDrawingBox({ start: [pos.x, pos.y], end: [pos.x, pos.y] });
+    if (clickMode === "drag") {
+      setDrawingBox({ start: [pos.x, pos.y], end: [pos.x, pos.y] });
+    } else if (clickMode === "click" && selectedClassId) {
+      if (!drawingBox) {
+        // First click
+        setDrawingBox({ start: [pos.x, pos.y], end: [pos.x, pos.y] });
+      } else {
+        // Second click
+        const [x1, y1] = drawingBox.start;
+        const [x2, y2] = [pos.x, pos.y];
+
+        const x = Math.min(x1, x2);
+        const y = Math.min(y1, y2);
+        const width = Math.abs(x2 - x1);
+        const height = Math.abs(y2 - y1);
+
+        if (width >= 5 && height >= 5) {
+          const bbox: [number, number, number, number] = [
+            norm(x, "x", stageSize),
+            norm(y, "y", stageSize),
+            norm(width, "x", stageSize),
+            norm(height, "y", stageSize),
+          ];
+
+          if (project.modelType === "pose") {
+            const cls = project.classes.find((c) => c.id === selectedClassId)!;
+            setPlacingKeypoints({
+              keypoints: cls.keypoints,
+              currentIdx: 0,
+              baseBox: bbox,
+              points: [],
+            });
+          } else {
+            addImageAnnotation(project.id, imagePath, {
+              classId: selectedClassId,
+              bbox,
+            });
+          }
+        }
+
+        setDrawingBox(null);
+      }
+    }
   };
 
   const handleMouseMove = (e: any) => {
     const pos = e.target.getStage().getPointerPosition();
-    if (pos) setMousePos([pos.x, pos.y]);
-    if (drawingBox) setDrawingBox({ ...drawingBox, end: [pos.x, pos.y] });
+    if (pos) {
+      setMousePos([pos.x, pos.y]);
+
+      if (clickMode === "drag" && drawingBox) {
+        setDrawingBox({ ...drawingBox, end: [pos.x, pos.y] });
+      }
+    }
   };
 
   const handleMouseUp = () => {
-    if (!drawingBox || !selectedClassId) return;
+    if (clickMode !== "drag" || !drawingBox || !selectedClassId) return;
 
     const [x1, y1] = drawingBox.start;
     const [x2, y2] = drawingBox.end;
@@ -113,28 +163,28 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     const width = Math.abs(x2 - x1);
     const height = Math.abs(y2 - y1);
 
-    if (width < 5 || height < 5) return setDrawingBox(null);
+    if (width >= 5 && height >= 5) {
+      const bbox: [number, number, number, number] = [
+        norm(x, "x", stageSize),
+        norm(y, "y", stageSize),
+        norm(width, "x", stageSize),
+        norm(height, "y", stageSize),
+      ];
 
-    const bbox: [number, number, number, number] = [
-      norm(x, "x", stageSize),
-      norm(y, "y", stageSize),
-      norm(width, "x", stageSize),
-      norm(height, "y", stageSize),
-    ];
-
-    if (project.modelType === "pose") {
-      const cls = project.classes.find((c) => c.id === selectedClassId)!;
-      setPlacingKeypoints({
-        keypoints: cls.keypoints,
-        currentIdx: 0,
-        baseBox: bbox,
-        points: [],
-      });
-    } else {
-      addImageAnnotation(project.id, imagePath, {
-        classId: selectedClassId,
-        bbox,
-      });
+      if (project.modelType === "pose") {
+        const cls = project.classes.find((c) => c.id === selectedClassId)!;
+        setPlacingKeypoints({
+          keypoints: cls.keypoints,
+          currentIdx: 0,
+          baseBox: bbox,
+          points: [],
+        });
+      } else {
+        addImageAnnotation(project.id, imagePath, {
+          classId: selectedClassId,
+          bbox,
+        });
+      }
     }
 
     setDrawingBox(null);
@@ -145,6 +195,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     const pos = e.target.getStage().getPointerPosition();
     if (!pos) return;
 
+    // placing keypoint skip
     if (placingKeypoints) {
       const current = placingKeypoints.keypoints[placingKeypoints.currentIdx];
       const updated = [
@@ -237,13 +288,13 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
                 (ann as PoseAnnotation).keypoints?.map((kp, j) =>
                   kp.visible === 0 ? null : (
                     <React.Fragment key={j}>
-                      <Rect
-                        x={denorm(kp.x, "x", stageSize) - 3}
-                        y={denorm(kp.y, "y", stageSize) - 3}
-                        width={6}
-                        height={6}
+                      <Circle
+                        x={denorm(kp.x, "x", stageSize)}
+                        y={denorm(kp.y, "y", stageSize)}
+                        radius={3}
                         fill="cyan"
                         stroke="black"
+                        strokeWidth={1}
                       />
                       <Text
                         x={denorm(kp.x, "x", stageSize) + 5}
@@ -259,12 +310,12 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
           );
         })}
 
-        {drawingBox && (
+        {drawingBox?.start && mousePos && (
           <Rect
-            x={Math.min(drawingBox.start[0], drawingBox.end[0])}
-            y={Math.min(drawingBox.start[1], drawingBox.end[1])}
-            width={Math.abs(drawingBox.start[0] - drawingBox.end[0])}
-            height={Math.abs(drawingBox.start[1] - drawingBox.end[1])}
+            x={Math.min(drawingBox.start[0], mousePos[0])}
+            y={Math.min(drawingBox.start[1], mousePos[1])}
+            width={Math.abs(drawingBox.start[0] - mousePos[0])}
+            height={Math.abs(drawingBox.start[1] - mousePos[1])}
             stroke="blue"
             strokeWidth={1}
             dash={[4, 2]}
@@ -282,20 +333,18 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               strokeWidth={2}
               dash={[4, 4]}
             />
-            {placingKeypoints.points.map(
-              (kp, i) =>
-                kp.visible !== 0 && (
-                  <Rect
-                    key={i}
-                    x={denorm(kp.x, "x", stageSize) - 3}
-                    y={denorm(kp.y, "y", stageSize) - 3}
-                    width={6}
-                    height={6}
-                    fill="lime"
-                    stroke="black"
-                    strokeWidth={1}
-                  />
-                ),
+            {placingKeypoints.points.map((kp, i) =>
+              kp.visible !== 0 ? (
+                <Circle
+                  key={i}
+                  x={denorm(kp.x, "x", stageSize)}
+                  y={denorm(kp.y, "y", stageSize)}
+                  radius={3}
+                  fill="lime"
+                  stroke="black"
+                  strokeWidth={1}
+                />
+              ) : null,
             )}
           </Group>
         )}
@@ -318,9 +367,9 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               <Text
                 x={mousePos[0] + 7.5}
                 y={mousePos[1] - 20}
-                text={
+                text={`Place: ${
                   placingKeypoints.keypoints[placingKeypoints.currentIdx].name
-                }
+                }`}
                 fontSize={16}
                 fill="yellow"
               />

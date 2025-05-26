@@ -34,20 +34,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
     <div className="border-r-border h-full w-64 shrink-0 space-y-4 overflow-y-auto border-r p-4">
       <Select
         value={clickMode}
-        onValueChange={(val) => setClickMode(val as "drag" | "click-twice")}
+        onValueChange={(val) => setClickMode(val as "drag" | "click")}
       >
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select click mode" />
+          <SelectValue placeholder="Bounding Box Mode" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="drag">Click and Drag</SelectItem>
-          <SelectItem value="click-twice">Click, Move, Click</SelectItem>
+          <SelectItem value="click">Click, then Click</SelectItem>
         </SelectContent>
       </Select>
 
       <Separator className="my-4" />
 
-      <h2 className="text-lg font-semibold">Classes</h2>
+      <h2 className="text-xl">Classes</h2>
       <div className="space-y-2">
         {project.classes.map((cls) => {
           const isSelected = cls.id === selectedClassId;
@@ -82,7 +82,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
 
       <Separator className="my-4" />
 
-      <h3 className="text-lg font-semibold">Placed Classes</h3>
+      <h3 className="text-xl">Placed Classes</h3>
       <div className="space-y-2 text-sm">
         {annotations.map((ann, idx) => {
           const cls = project.classes.find((c) => c.id === ann.classId);

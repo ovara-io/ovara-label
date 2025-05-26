@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { DetectionClass, DetectionProject } from "@/classes";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { nanoid } from "nanoid";
 import { useOvaraStore } from "@/hooks/useOvaraStore";

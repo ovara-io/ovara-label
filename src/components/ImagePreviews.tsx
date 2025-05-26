@@ -16,7 +16,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
+interface ImagePreviewProps {
+  src: string;
+  alt: string;
+  onClick: () => void;
+  numLabels: number;
+}
+
+export const ImagePreview: React.FC<ImagePreviewProps> = ({
+  src,
+  alt,
+  onClick,
+  numLabels,
+}) => {
+  const isLabelled = numLabels > 0;
+  return (
+    <div className="cursor-pointer space-y-1" onClick={onClick}>
+      <img
+        src={src}
+        alt={alt}
+        className="h-32 w-full rounded border object-contain"
+      />
+      <div
+        className={cn(
+          "text-muted-foreground text-center text-sm",
+          isLabelled && "font-semibold text-green-400",
+        )}
+      >
+        {isLabelled ? `[${numLabels}] Labelled` : "Unlabelled"}
+      </div>
+    </div>
+  );
+};
 interface ImagePreviewsProps {
   projectId: string;
   imageDir: string;
@@ -73,6 +106,7 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl">Image Previews</h2>
+        <h3>{filteredImages.length} image(s)</h3>
         <Select
           value={filter}
           onValueChange={(val) => {
@@ -97,22 +131,13 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
           const numLabels = annotations[imgPath]?.length ?? 0;
 
           return (
-            <div
+            <ImagePreview
               key={imgPath}
-              className="relative cursor-pointer"
+              src={imgPath}
+              alt={`image-${index}`}
+              numLabels={numLabels}
               onClick={() => navigate(`/project/${projectId}/image/${index}`)}
-            >
-              <img
-                src={imgPath}
-                alt={`image-${index}`}
-                className="h-32 w-full object-contain"
-              />
-              {numLabels > 0 && (
-                <div className="absolute-center text-shadow-bold px-2 py-0.5 text-4xl text-green-400">
-                  [{numLabels}]
-                </div>
-              )}
-            </div>
+            />
           );
         })}
       </div>
