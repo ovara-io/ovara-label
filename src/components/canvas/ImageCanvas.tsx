@@ -14,6 +14,7 @@ import { useImagePageStore } from "@/hooks/useImagePageStore";
 import type { PoseAnnotation, PoseClass, Project } from "@/classes";
 import { denorm, norm } from "@/lib/image-utils";
 import { useShallow } from "zustand/react/shallow";
+import Konva from "konva";
 
 interface ImageCanvasProps {
   project: Project;
@@ -56,7 +57,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
 
   if (!image) return null;
 
-  const handleMouseDown = (e: any) => {
+  const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = e.target.getStage().getPointerPosition();
     if (!pos || e.evt.button !== 0 || e.evt.ctrlKey) return;
 
@@ -78,7 +79,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         placingKeypoints.keypoints.length
       ) {
         addImageAnnotation(project.id, imagePath, {
-          classId: selectedClassId!,
+          classId: selectedClassId,
           bbox: placingKeypoints.baseBox,
           keypoints: updated,
         });
@@ -121,7 +122,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
           ];
 
           if (project.modelType === "pose") {
-            const cls = project.classes.find((c) => c.id === selectedClassId)!;
+            const cls = project.classes.find((c) => c.id === selectedClassId);
             setPlacingKeypoints({
               keypoints: cls.keypoints,
               currentIdx: 0,
@@ -141,7 +142,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     }
   };
 
-  const handleMouseMove = (e: any) => {
+  const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = e.target.getStage().getPointerPosition();
     if (pos) {
       setMousePos([pos.x, pos.y]);
@@ -172,7 +173,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       ];
 
       if (project.modelType === "pose") {
-        const cls = project.classes.find((c) => c.id === selectedClassId)!;
+        const cls = project.classes.find((c) => c.id === selectedClassId);
         setPlacingKeypoints({
           keypoints: cls.keypoints,
           currentIdx: 0,
@@ -190,7 +191,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     setDrawingBox(null);
   };
 
-  const handleContextMenu = (e: any) => {
+  const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
     e.evt.preventDefault();
     const pos = e.target.getStage().getPointerPosition();
     if (!pos) return;
@@ -208,7 +209,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         placingKeypoints.keypoints.length
       ) {
         addImageAnnotation(project.id, imagePath, {
-          classId: selectedClassId!,
+          classId: selectedClassId,
           bbox: placingKeypoints.baseBox,
           keypoints: updated,
         });
@@ -367,9 +368,9 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               <Text
                 x={mousePos[0] + 7.5}
                 y={mousePos[1] - 20}
-                text={`Place: ${
+                text={
                   placingKeypoints.keypoints[placingKeypoints.currentIdx].name
-                }`}
+                }
                 fontSize={16}
                 fill="yellow"
               />

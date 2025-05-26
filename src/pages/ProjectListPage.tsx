@@ -35,12 +35,17 @@ const ProjectCard = ({ project }: { project: Project }) => {
         <div className="truncate text-xl font-semibold">{project.name}</div>
         <div className="text-muted-foreground truncate">
           Type: {project.modelType} | Images: {project.imagePaths.length ?? 0} |
-          Labelled: {numLabelled ?? 0}
+          Labelled: {numLabelled ?? 0} |{" "}
+          <span className={"font-semibold"}>
+            {(numLabelled / project.imagePaths.length) * 100}% Complete
+          </span>
         </div>
       </div>
-      <div className="text-muted-foreground space-y-1 text-right">
-        <div>Created: {new Date(project.createdAt).toLocaleString()}</div>
-        <div>Updated: {new Date(project.updatedAt).toLocaleString()}</div>
+      <div className="space-y-1 text-right">
+        <div>
+          <span className={"font-semibold"}>Updated:</span>{" "}
+          {new Date(project.updatedAt).toLocaleString()}
+        </div>
       </div>
     </li>
   );
@@ -103,9 +108,14 @@ export const ProjectListPage = () => {
       <h1 className={"text-2xl font-bold"}>Select a Project</h1>
 
       <ul className="space-y-2">
-        {projects.map((project) => (
-          <ProjectCard project={project} key={project.id} />
-        ))}
+        {[...projects]
+          .sort(
+            (a, b) =>
+              new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+          )
+          .map((project) => (
+            <ProjectCard project={project} key={project.id} />
+          ))}
       </ul>
     </div>
   );

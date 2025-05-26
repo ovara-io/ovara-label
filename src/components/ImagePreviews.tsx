@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface ImagePreviewProps {
   src: string;
@@ -126,7 +127,7 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6">
-        {currentImages.map((imgPath, i) => {
+        {currentImages.map((imgPath, _) => {
           const index = project.imagePaths.indexOf(imgPath);
           const numLabels = annotations[imgPath]?.length ?? 0;
 
@@ -165,6 +166,11 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
           </PaginationContent>
         </Pagination>
       )}
+      <div className={"flex justify-end"}>
+        <Button variant={"destructive"} className={"px-8"}>
+          Export Labels
+        </Button>
+      </div>
     </div>
   );
 };

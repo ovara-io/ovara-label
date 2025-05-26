@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useParams } from "wouter";
 import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useShallow } from "zustand/react/shallow";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { pickFolder } from "@/ipc-renderer";
 import { Input } from "@/components/ui/input";
@@ -55,15 +54,15 @@ export const ProjectPage = () => {
 
       <Separator />
 
+      <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
+
+      <Separator />
+
       {project.modelType === "pose" ? (
         <UpsertPoseClass project={project} />
       ) : (
         <UpsertDetectionClass project={project} />
       )}
-
-      <Separator />
-
-      <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
     </div>
   );
 };
