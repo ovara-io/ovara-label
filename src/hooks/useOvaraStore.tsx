@@ -48,6 +48,7 @@ export const useOvaraStore = create<ProjectStore>()(
       const updateProjectState = (
         id: string,
         updater: (project: Project) => Project,
+        recordTimeUpdated = true,
       ) =>
         set((state) => {
           const index = state.projects.findIndex((p) => p.id === id);
@@ -55,8 +56,11 @@ export const useOvaraStore = create<ProjectStore>()(
 
           const updated = updater({
             ...state.projects[index],
-            updatedAt: new Date().toISOString(),
           });
+
+          if (recordTimeUpdated) {
+            updated.updatedAt = new Date().toISOString();
+          }
 
           const projects = [...state.projects];
           projects[index] = updated;
@@ -77,10 +81,14 @@ export const useOvaraStore = create<ProjectStore>()(
           })),
 
         updateProjectImagePaths: (id, paths) =>
-          updateProjectState(id, (project) => ({
-            ...project,
-            imagePaths: paths,
-          })),
+          updateProjectState(
+            id,
+            (project) => ({
+              ...project,
+              imagePaths: paths,
+            }),
+            false,
+          ),
 
         updateProjectImageDir: (id, imageDir) =>
           updateProjectState(id, (project) => ({

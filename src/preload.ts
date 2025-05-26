@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("fs:read-file", path),
 
   writeFile: (path: string, contents: string): Promise<void> =>
-    ipcRenderer.invoke("fs:write-file", path),
+    ipcRenderer.invoke("fs:write-file", path, contents),
 
   getImagePaths: (dirPath: string): Promise<string[]> =>
     ipcRenderer.invoke("fs:get-image-paths", dirPath),

@@ -5,6 +5,7 @@ import { ProjectPage } from "./pages/ProjectPage";
 import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ImagePage } from "@/pages/ImagePage";
+import { Toaster } from "@/components/ui/sonner";
 
 export const App = () => {
   return (
@@ -19,6 +20,7 @@ export const App = () => {
           </Switch>
         </main>
       </div>
+      <Toaster />
     </ThemeProvider>
   );
 };

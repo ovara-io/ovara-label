@@ -54,15 +54,14 @@ export const ProjectPage = () => {
 
       <Separator />
 
-      <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
-
-      <Separator />
-
       {project.modelType === "pose" ? (
         <UpsertPoseClass project={project} />
       ) : (
         <UpsertDetectionClass project={project} />
       )}
+      <Separator />
+
+      <ImagePreviews projectId={project.id} imageDir={project.imageDir} />
     </div>
   );
 };

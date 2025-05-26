@@ -34,18 +34,17 @@ const ProjectCard = ({ project }: { project: Project }) => {
       <div>
         <div className="truncate text-xl font-semibold">{project.name}</div>
         <div className="text-muted-foreground truncate">
-          Type: {project.modelType} | Images: {project.imagePaths.length ?? 0} |
-          Labelled: {numLabelled ?? 0} |{" "}
-          <span className={"font-semibold"}>
-            {(numLabelled / project.imagePaths.length) * 100}% Complete
-          </span>
+          Images: {project.imagePaths.length ?? 0}{" "}
+          {project.imagePaths.length > 0 && (
+            <span className={"font-semibold"}>
+              | {(numLabelled / project.imagePaths.length) * 100}% Labelled
+            </span>
+          )}
         </div>
       </div>
       <div className="space-y-1 text-right">
-        <div>
-          <span className={"font-semibold"}>Updated:</span>{" "}
-          {new Date(project.updatedAt).toLocaleString()}
-        </div>
+        <div>Type: {project.modelType}</div>
+        <div>Updated: {new Date(project.updatedAt).toLocaleString()}</div>
       </div>
     </li>
   );
