@@ -1,8 +1,8 @@
 {
   "name": "ovara-label",
-  "productName": "Ovara Label",
+  "productName": "OvaraLabel",
   "version": "1.0.0",
-  "description": "Image annotation application for computer vision projects.",
+  "description": "OvaraLabel is a cross-platform image annotation tool for computer vision projects.",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -42,7 +42,7 @@
     "name": "Redmond Riddell",
     "email": "red@ovara.io"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "packageManager": "yarn@4.9.1",
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.15",
