@@ -4,11 +4,11 @@ OvaraLabel is a cross-platform image annotation tool for computer vision project
 
 This project is bootstrapped with [Electron Forge](https://www.electronforge.io/) using:
 
-* ⚡️ Vite
-* 🧠 TypeScript
-* 💅 Prettier & ESLint
-* ⚛️ React
-* 🧶 Yarn Modern (Berry) with `node-modules`
+- ⚡️ Vite
+- 🧠 TypeScript
+- 💅 Prettier & ESLint
+- ⚛️ React
+- 🧶 Yarn Modern (Berry) with `node-modules`
 
 ## 🛠️ Running Locally
 
@@ -31,9 +31,9 @@ This will install dependencies, and start the Electron app in development mode.
 
 ## Guidelines
 
-* Follow the existing code style.
-* Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, `fix:`).
-* Submit pull requests to the `main` branch.
+- Follow the existing code style.
+- Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, `fix:`).
+- Submit pull requests to the `main` branch.
 
 ## Questions?
 
