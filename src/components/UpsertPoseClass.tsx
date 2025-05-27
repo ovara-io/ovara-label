@@ -3,7 +3,6 @@ import { PoseClass, PoseProject, Keypoint } from "@/classes";
 import { nanoid } from "nanoid";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useShallow } from "zustand/react/shallow";

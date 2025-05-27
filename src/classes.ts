@@ -1,10 +1,4 @@
-export enum Visible {
-  NotLabeled = 0,
-  LabeledNotVisible = 1,
-  LabeledVisible = 2,
-}
-
-// Discriminated union for model type
+// We use discriminated unions based on ModelType
 export type ModelType = "detection" | "pose";
 
 export type Project = DetectionProject | PoseProject;
@@ -61,9 +55,15 @@ export interface PoseAnnotation extends DetectionAnnotation {
   keypoints: KeypointAnnotation[];
 }
 
+export enum KeypointVisibility {
+  NotLabeled = 0,
+  LabeledNotVisible = 1,
+  LabeledVisible = 2,
+}
+
 export interface KeypointAnnotation {
   id: string;
   x: number;
   y: number;
-  visible: Visible;
+  visible: KeypointVisibility;
 }

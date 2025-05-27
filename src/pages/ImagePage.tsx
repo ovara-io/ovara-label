@@ -5,9 +5,6 @@ import { useImagePageStore } from "@/hooks/useImagePageStore";
 import { ImageCanvas } from "@/components/canvas/ImageCanvas";
 import { Sidebar } from "@/components/canvas/Sidebar";
 
-const sceneWidth = 1000;
-const sceneHeight = 1000;
-
 export const ImagePage = () => {
   const { id, index } = useParams<{ id: string; index: string }>();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,11 +16,7 @@ export const ImagePage = () => {
   const imagePath = project?.imagePaths?.[Number(index)] ?? "";
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [stageSize, setStageSize] = useState({
-    width: sceneWidth,
-    height: sceneHeight,
-    scale: 1,
-  });
+  const [renderSize, setRenderSize] = useState({ width: 100, height: 100 });
 
   useEffect(() => {
     if (!imagePath) return;
@@ -38,22 +31,21 @@ export const ImagePage = () => {
     }
   }, [project?.classes]);
 
-  const updateSize = () => {
-    if (!containerRef.current) return;
+  const updateRenderSize = () => {
+    if (!containerRef.current || !image) return;
     const containerWidth = containerRef.current.offsetWidth;
-    const scale = containerWidth / sceneWidth;
-    setStageSize({
-      width: sceneWidth * scale,
-      height: sceneHeight * scale,
-      scale,
+    const aspectRatio = image.height / image.width;
+    setRenderSize({
+      width: containerWidth,
+      height: containerWidth * aspectRatio,
     });
   };
 
   useEffect(() => {
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
+    updateRenderSize();
+    window.addEventListener("resize", updateRenderSize);
+    return () => window.removeEventListener("resize", updateRenderSize);
+  }, [image]); // only recalc when image loads
 
   return (
     <div className="flex h-full w-full">
@@ -62,12 +54,14 @@ export const ImagePage = () => {
         className="relative flex h-full w-full items-center overflow-x-hidden overflow-y-auto"
         ref={containerRef}
       >
-        <ImageCanvas
-          project={project}
-          imagePath={imagePath}
-          image={image}
-          stageSize={stageSize}
-        />
+        {image && (
+          <ImageCanvas
+            project={project}
+            imagePath={imagePath}
+            image={image}
+            renderSize={renderSize}
+          />
+        )}
       </div>
     </div>
   );

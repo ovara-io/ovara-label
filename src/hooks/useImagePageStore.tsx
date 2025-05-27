@@ -1,10 +1,11 @@
 import { create } from "zustand";
+import { Keypoint, KeypointAnnotation } from "@/classes";
 
-interface KeypointState {
-  keypoints: any[];
+export interface KeypointState {
+  keypoints: Keypoint[];
   currentIdx: number;
   baseBox: [number, number, number, number];
-  points: any[];
+  points: KeypointAnnotation[];
 }
 
 export type ClickMode = "drag" | "click";

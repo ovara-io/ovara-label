@@ -13,7 +13,7 @@ import {
   Annotation,
   PoseAnnotation,
   Project,
-  Visible,
+  KeypointVisibility,
   PoseClass,
 } from "@/classes";
 import { useLocation } from "wouter";
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
                         const match = (ann as PoseAnnotation).keypoints.find(
                           (k) =>
                             k.id === kp.id &&
-                            k.visible === Visible.LabeledVisible,
+                            k.visible === KeypointVisibility.LabeledVisible,
                         );
                         return (
                           <li key={kp.id}>

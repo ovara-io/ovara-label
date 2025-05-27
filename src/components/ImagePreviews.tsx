@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { exportYoloLabels } from "@/lib/export.utils";
+import { exportYoloLabels } from "@/lib/export-utils";
 import { toast } from "sonner";
 
 interface ImagePreviewProps {
