@@ -24,14 +24,14 @@ interface ImageCanvasProps {
   project: Project;
   imagePath: string;
   image: HTMLImageElement | null;
-  renderSize: { width: number; height: number };
+  containerSize: { width: number; height: number };
 }
 
 export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   project,
   imagePath,
   image,
-  renderSize,
+  containerSize,
 }) => {
   const addImageAnnotation = useOvaraStore((s) => s.addImageAnnotation);
   const deleteImageAnnotationByIndex = useOvaraStore(
@@ -46,6 +46,28 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   const setDrawingBox = useImagePageStore((s) => s.setDrawingBox);
   const placingKeypoints = useImagePageStore((s) => s.placingKeypoints);
   const setPlacingKeypoints = useImagePageStore((s) => s.setPlacingKeypoints);
+
+  const renderMode = "fit"; // "fit" or "stretch", ideally from Zustand
+
+  const imageAspect = image.width / image.height;
+  const { width: containerWidth, height: containerHeight } = containerSize;
+  let renderWidth, renderHeight;
+
+  if (renderMode === "stretch") {
+    renderWidth = containerWidth;
+    renderHeight = containerHeight;
+  } else {
+    const containerAspect = containerWidth / containerHeight;
+    if (imageAspect > containerAspect) {
+      renderWidth = containerWidth;
+      renderHeight = containerWidth / imageAspect;
+    } else {
+      renderHeight = containerHeight;
+      renderWidth = containerHeight * imageAspect;
+    }
+  }
+
+  const renderSize = { width: renderWidth, height: renderHeight };
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = e.target.getStage().getPointerPosition();
@@ -234,8 +256,8 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
 
   return (
     <Stage
-      width={renderSize.width}
-      height={(image.height / image.width) * renderSize.width}
+      width={renderWidth}
+      height={renderHeight}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -243,11 +265,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       style={{ cursor: "none" }}
     >
       <Layer>
-        <KonvaImage
-          image={image}
-          width={renderSize.width}
-          height={(image.height / image.width) * renderSize.width}
-        />
+        <KonvaImage image={image} width={renderWidth} height={renderHeight} />
 
         {(project.annotations?.[imagePath] ?? []).map((ann, i) => {
           const [nx, ny, nw, nh] = ann.bbox;

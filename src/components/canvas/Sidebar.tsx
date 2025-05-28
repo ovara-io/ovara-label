@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
 
   return (
     <div className="border-border relative flex h-full w-64 shrink-0 flex-col justify-between border-r">
-      <div className="space-y-2 p-2">
+      <div className="space-y-2 overflow-auto p-2">
         <Select
           value={clickMode}
           onValueChange={(val) => setClickMode(val as "drag" | "click")}

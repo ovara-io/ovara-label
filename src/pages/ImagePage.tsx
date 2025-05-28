@@ -16,7 +16,10 @@ export const ImagePage = () => {
   const imagePath = project?.imagePaths?.[Number(index)] ?? "";
 
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [renderSize, setRenderSize] = useState({ width: 100, height: 100 });
+  const [containerSize, setContainerSize] = useState({
+    width: 100,
+    height: 100,
+  });
 
   useEffect(() => {
     if (!imagePath) return;
@@ -31,27 +34,25 @@ export const ImagePage = () => {
     }
   }, [project?.classes]);
 
-  const updateRenderSize = () => {
-    if (!containerRef.current || !image) return;
-    const containerWidth = containerRef.current.offsetWidth;
-    const aspectRatio = image.height / image.width;
-    setRenderSize({
-      width: containerWidth,
-      height: containerWidth * aspectRatio,
+  const updateContainerSize = () => {
+    if (!containerRef.current) return;
+    setContainerSize({
+      width: containerRef.current.offsetWidth,
+      height: containerRef.current.offsetHeight,
     });
   };
 
   useEffect(() => {
-    updateRenderSize();
-    window.addEventListener("resize", updateRenderSize);
-    return () => window.removeEventListener("resize", updateRenderSize);
-  }, [image]); // only recalc when image loads
+    updateContainerSize();
+    window.addEventListener("resize", updateContainerSize);
+    return () => window.removeEventListener("resize", updateContainerSize);
+  }, []);
 
   return (
     <div className="flex h-full w-full">
       <Sidebar project={project} imagePath={imagePath} />
       <div
-        className="relative flex h-full w-full items-center overflow-x-hidden overflow-y-auto"
+        className="relative flex h-full w-full items-center justify-center overflow-auto"
         ref={containerRef}
       >
         {image && (
@@ -59,7 +60,7 @@ export const ImagePage = () => {
             project={project}
             imagePath={imagePath}
             image={image}
-            renderSize={renderSize}
+            containerSize={containerSize}
           />
         )}
       </div>
