@@ -12,7 +12,7 @@ export const Navbar = () => {
         {!isHome && <BackButton onClick={() => window.history.back()} />}
       </div>
 
-      <h1 className="font-oswald pointer-events-none text-3xl font-light select-none">
+      <h1 className="font-oswald text-3xl font-light select-none">
         <span className={"font-bold"}>OVARA</span>Label
       </h1>
 

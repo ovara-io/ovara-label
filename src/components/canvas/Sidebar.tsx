@@ -18,7 +18,12 @@ import {
 } from "@/classes";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
 interface SidebarProps {
   project: Project;
   imagePath: string;
@@ -38,8 +43,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
   const hasNext = index < project.imagePaths.length - 1;
 
   return (
-    <div className="border-border relative flex h-full w-64 shrink-0 flex-col border-r p-4">
-      <div className="space-y-4 overflow-y-auto pb-20">
+    <div className="border-border relative flex h-full w-64 shrink-0 flex-col justify-between border-r">
+      <div className="space-y-2 p-2">
         <Select
           value={clickMode}
           onValueChange={(val) => setClickMode(val as "drag" | "click")}
@@ -126,8 +131,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
         </div>
       </div>
 
-      {/* Nav buttons pinned to bottom */}
-      <div className="border-border bg-background absolute right-0 bottom-0 left-0 flex justify-between border-t px-4 py-2">
+      <div className="flex w-full justify-between border-t p-2">
         <Button
           variant="outline"
           disabled={!hasPrev}
@@ -140,6 +144,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
         >
           Prev
         </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button className="p-1 text-sm" variant={"outline"}>
+              {index + 1} / {project.imagePaths.length}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64" align="center" side="top">
+            <Slider
+              min={1}
+              max={project.imagePaths.length}
+              value={[index + 1]}
+              onValueChange={([val]) =>
+                navigate(`/project/${project.id}/image/${val - 1}`, {
+                  replace: true,
+                })
+              }
+            />
+          </PopoverContent>
+        </Popover>
         <Button
           variant="outline"
           disabled={!hasNext}
