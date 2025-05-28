@@ -9,6 +9,8 @@ export interface KeypointState {
 }
 
 export type ClickMode = "drag" | "click";
+export type ImageType = "fit" | "stretch";
+export type InteractionMode = "create" | "edit" | "zoom";
 
 interface ImagePageStore {
   selectedClassId: string | null;
@@ -23,6 +25,10 @@ interface ImagePageStore {
   ) => void;
   placingKeypoints: KeypointState | null;
   setPlacingKeypoints: (state: KeypointState | null) => void;
+  imageType: ImageType;
+  setImageType: (type: ImageType) => void;
+  interactionMode: InteractionMode;
+  setInteractionMode: (mode: InteractionMode) => void;
 }
 
 export const useImagePageStore = create<ImagePageStore>((set) => ({
@@ -36,4 +42,8 @@ export const useImagePageStore = create<ImagePageStore>((set) => ({
   setDrawingBox: (box) => set({ drawingBox: box }),
   placingKeypoints: null,
   setPlacingKeypoints: (state) => set({ placingKeypoints: state }),
+  imageType: "fit",
+  setImageType: (type) => set({ imageType: type }),
+  interactionMode: "create",
+  setInteractionMode: (mode) => set({ interactionMode: mode }),
 }));

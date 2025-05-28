@@ -11,10 +11,10 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   Annotation,
-  PoseAnnotation,
-  Project,
   KeypointVisibility,
+  PoseAnnotation,
   PoseClass,
+  Project,
 } from "@/classes";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -24,11 +24,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
+
 interface SidebarProps {
   project: Project;
   imagePath: string;
 }
 
+// TODO use shadcn sidebar component with collapsibles
 export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
   const selectedClassId = useImagePageStore((s) => s.selectedClassId);
   const setSelectedClassId = useImagePageStore((s) => s.setSelectedClassId);

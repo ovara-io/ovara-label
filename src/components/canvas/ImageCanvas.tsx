@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Circle,
   Group,
@@ -46,28 +46,37 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   const setDrawingBox = useImagePageStore((s) => s.setDrawingBox);
   const placingKeypoints = useImagePageStore((s) => s.placingKeypoints);
   const setPlacingKeypoints = useImagePageStore((s) => s.setPlacingKeypoints);
+  const imageType = useImagePageStore((s) => s.imageType); // use Zustand value
 
-  const renderMode = "fit"; // "fit" or "stretch", ideally from Zustand
+  const renderSize = useMemo(() => {
+    const imageAspect = image.width / image.height;
+    const { width: containerWidth, height: containerHeight } = containerSize;
 
-  const imageAspect = image.width / image.height;
-  const { width: containerWidth, height: containerHeight } = containerSize;
-  let renderWidth, renderHeight;
+    if (imageType === "stretch") {
+      return { width: containerWidth, height: containerHeight };
+    }
 
-  if (renderMode === "stretch") {
-    renderWidth = containerWidth;
-    renderHeight = containerHeight;
-  } else {
     const containerAspect = containerWidth / containerHeight;
     if (imageAspect > containerAspect) {
-      renderWidth = containerWidth;
-      renderHeight = containerWidth / imageAspect;
+      return {
+        width: containerWidth,
+        height: containerWidth / imageAspect,
+      };
     } else {
-      renderHeight = containerHeight;
-      renderWidth = containerHeight * imageAspect;
+      return {
+        height: containerHeight,
+        width: containerHeight * imageAspect,
+      };
     }
-  }
+  }, [
+    image.width,
+    image.height,
+    containerSize.width,
+    containerSize.height,
+    imageType,
+  ]);
 
-  const renderSize = { width: renderWidth, height: renderHeight };
+  const { width: renderWidth, height: renderHeight } = renderSize;
 
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = e.target.getStage().getPointerPosition();

@@ -4,6 +4,7 @@ import { useOvaraStore } from "@/hooks/useOvaraStore";
 import { useImagePageStore } from "@/hooks/useImagePageStore";
 import { ImageCanvas } from "@/components/canvas/ImageCanvas";
 import { Sidebar } from "@/components/canvas/Sidebar";
+import { Toolbar } from "@/components/canvas/Toolbar";
 
 export const ImagePage = () => {
   const { id, index } = useParams<{ id: string; index: string }>();
@@ -49,21 +50,27 @@ export const ImagePage = () => {
   }, []);
 
   return (
-    <div className="flex h-full w-full">
-      <Sidebar project={project} imagePath={imagePath} />
-      <div
-        className="relative flex h-full w-full items-center justify-center overflow-auto"
-        ref={containerRef}
-      >
-        {image && (
-          <ImageCanvas
-            project={project}
-            imagePath={imagePath}
-            image={image}
-            containerSize={containerSize}
-          />
-        )}
+    <>
+      <div className="flex h-full w-full">
+        <Sidebar project={project} imagePath={imagePath} />
+        <div className="relative flex h-full w-full flex-col overflow-auto">
+          <Toolbar />
+
+          <div
+            className="relative flex h-full w-full items-center justify-center overflow-auto"
+            ref={containerRef}
+          >
+            {image && (
+              <ImageCanvas
+                project={project}
+                imagePath={imagePath}
+                image={image}
+                containerSize={containerSize}
+              />
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
