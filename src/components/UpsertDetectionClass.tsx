@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { nanoid } from "nanoid";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useShallow } from "zustand/react/shallow";
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 export const UpsertDetectionClass = ({ project }: Props) => {
   const [newClassName, setNewClassName] = useState("");
 
-  const [addDetectionClass, deleteDetectionClass] = useOvaraStore(
+  const [addDetectionClass, deleteDetectionClass] = useProjectStore(
     useShallow((s) => [s.addDetectionClass, s.deleteDetectionClass]),
   );
 

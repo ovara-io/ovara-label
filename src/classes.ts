@@ -3,10 +3,6 @@ export type ModelType = "detection" | "pose";
 
 export type Project = DetectionProject | PoseProject;
 
-type AnnotationsByImage = {
-  [imagePath: string]: Annotation[];
-};
-
 interface BaseProject {
   id: string;
   name: string;
@@ -14,17 +10,18 @@ interface BaseProject {
   updatedAt?: string;
   createdAt: string;
   imagePaths: string[];
-  annotations: AnnotationsByImage;
 }
 
 export interface DetectionProject extends BaseProject {
   modelType: "detection";
   classes: DetectionClass[];
+  annotations: Record<string, DetectionAnnotation[]>;
 }
 
 export interface PoseProject extends BaseProject {
   modelType: "pose";
   classes: PoseClass[];
+  annotations: Record<string, PoseAnnotation[]>;
 }
 
 export interface DetectionClass {
@@ -32,17 +29,13 @@ export interface DetectionClass {
   name: string;
 }
 
-export interface PoseClass {
-  id: string;
-  name: string;
+export interface PoseClass extends DetectionClass {
   keypoints: Keypoint[];
 }
 export interface Keypoint {
   id: string;
   name: string;
 }
-
-export type Annotation = DetectionAnnotation | PoseAnnotation;
 
 export interface DetectionAnnotation {
   classId: string;
@@ -53,6 +46,8 @@ export interface DetectionAnnotation {
 export interface PoseAnnotation extends DetectionAnnotation {
   keypoints: KeypointAnnotation[];
 }
+
+export type Annotation = DetectionAnnotation | PoseAnnotation;
 
 export enum KeypointVisibility {
   NotLabeled = 0,

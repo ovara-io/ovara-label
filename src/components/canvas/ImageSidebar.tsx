@@ -3,6 +3,8 @@ import { useImagePageStore } from "@/hooks/useImagePageStore";
 import { cn } from "@/lib/utils";
 import {
   Annotation,
+  DetectionAnnotation,
+  DetectionClass,
   KeypointVisibility,
   PoseAnnotation,
   PoseClass,
@@ -37,11 +39,12 @@ import {
 import { BookOpen, Bot, ChevronRight } from "lucide-react";
 
 interface PlacedClassProps {
-  cls: PoseClass;
-  ann: PoseAnnotation;
+  project: Project;
+  cls: DetectionClass;
+  ann: DetectionAnnotation;
 }
 
-const PlacedClass: React.FC<PlacedClassProps> = ({ cls, ann }) => {
+const PlacedClass = ({ project, cls, ann }: PlacedClassProps) => {
   return (
     <SidebarMenuSub key={cls.id}>
       <SidebarMenuSubButton className={"h-full py-1"}>
@@ -53,10 +56,10 @@ const PlacedClass: React.FC<PlacedClassProps> = ({ cls, ann }) => {
             />
             <span>{cls.name}</span>
           </div>
-          {"keypoints" in cls && "keypoints" in ann && (
+          {project.modelType === "pose" && (
             <ul className="text-muted-foreground ml-4.75 list-disc text-xs">
-              {cls.keypoints.map((kp) => {
-                const match = ann.keypoints.find(
+              {(cls as PoseClass).keypoints.map((kp) => {
+                const match = (ann as PoseAnnotation).keypoints.find(
                   (k) =>
                     k.id === kp.id &&
                     k.visible === KeypointVisibility.LabeledVisible,
@@ -173,17 +176,12 @@ export const ImageSidebar: React.FC<SidebarProps> = ({
                       const cls = project.classes.find(
                         (c) => c.id === ann.classId,
                       );
-                      if (
-                        !cls ||
-                        project.modelType !== "pose" ||
-                        !("keypoints" in ann)
-                      )
-                        return null;
                       return (
                         <PlacedClass
                           key={idx}
-                          cls={cls as PoseClass}
-                          ann={ann as PoseAnnotation}
+                          project={project}
+                          cls={cls}
+                          ann={ann}
                         />
                       );
                     })}

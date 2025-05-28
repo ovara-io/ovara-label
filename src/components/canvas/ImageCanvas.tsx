@@ -9,7 +9,7 @@ import {
   Stage,
   Text,
 } from "react-konva";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useImagePageStore } from "@/hooks/useImagePageStore";
 import {
   KeypointVisibility,
@@ -34,8 +34,8 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   image,
   containerSize,
 }) => {
-  const addImageAnnotation = useOvaraStore((s) => s.addImageAnnotation);
-  const deleteImageAnnotationByIndex = useOvaraStore(
+  const addImageAnnotation = useProjectStore((s) => s.addImageAnnotation);
+  const deleteImageAnnotationByIndex = useProjectStore(
     (s) => s.deleteImageAnnotationByIndex,
   );
   const selectedClassId = useImagePageStore((s) => s.selectedClassId);

@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "wouter";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useImagePageStore } from "@/hooks/useImagePageStore";
 import { ImageCanvas } from "@/components/canvas/ImageCanvas";
-import { Sidebar } from "@/components/canvas/Sidebar";
 import { Toolbar } from "@/components/canvas/Toolbar";
 import { ImageSidebar } from "@/components/canvas/ImageSidebar";
 
@@ -13,7 +12,7 @@ export const ImagePage = () => {
 
   const setSelectedClassId = useImagePageStore((s) => s.setSelectedClassId);
 
-  const projects = useOvaraStore((state) => state.projects);
+  const projects = useProjectStore((state) => state.projects);
   const project = projects.find((p) => p.id === id);
   const imagePath = project?.imagePaths?.[Number(index)] ?? "";
 
@@ -54,7 +53,6 @@ export const ImagePage = () => {
     <>
       <div className="flex h-full w-full">
         <ImageSidebar project={project} imagePath={imagePath} />
-        {/*<Sidebar project={project} imagePath={imagePath} />*/}
         <div className="relative flex h-full w-full flex-col overflow-auto">
           <Toolbar />
 

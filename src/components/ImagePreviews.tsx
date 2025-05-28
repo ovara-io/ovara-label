@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useShallow } from "zustand/react/shallow";
 import {
   Pagination,
@@ -40,11 +40,11 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       <img src={src} alt={alt} className="h-32 w-full object-contain" />
       <div
         className={cn(
-          "text-muted-foreground text-center text-sm",
-          isLabelled && "font-semibold text-green-400",
+          "text-center text-sm font-semibold text-red-400",
+          isLabelled && "text-green-400",
         )}
       >
-        {isLabelled ? `[${numLabels}] Labelled` : "Unlabelled"}
+        {isLabelled ? `${numLabels} Labels` : "Unlabelled"}
       </div>
     </div>
   );
@@ -63,7 +63,7 @@ export const ImagePreviews = ({ projectId, imageDir }: ImagePreviewsProps) => {
   );
   const [, navigate] = useLocation();
 
-  const [project, updateProjectImagePaths] = useOvaraStore(
+  const [project, updateProjectImagePaths] = useProjectStore(
     useShallow((state) => {
       const p = state.projects.find((p) => p.id === projectId);
       return [p, state.updateProjectImagePaths];

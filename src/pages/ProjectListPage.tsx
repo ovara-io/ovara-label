@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { nanoid } from "nanoid";
 import { ModelType, Project } from "@/classes";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { ProjectCard } from "@/components/ProjectCard";
 
 export const ProjectListPage = () => {
-  const [projects, addProject] = useOvaraStore(
+  const [projects, addProject] = useProjectStore(
     useShallow((state) => [state.projects, state.addProject]),
   );
 

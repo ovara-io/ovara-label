@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useParams } from "wouter";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useShallow } from "zustand/react/shallow";
 import { Separator } from "@/components/ui/separator";
 import { pickFolder } from "@/ipc-renderer";
@@ -13,7 +13,7 @@ import { ImagePreviews } from "@/components/ImagePreviews";
 export const ProjectPage = () => {
   const { id } = useParams<{ id: string }>();
 
-  const [projects, updateProjectImageDir] = useOvaraStore(
+  const [projects, updateProjectImageDir] = useProjectStore(
     useShallow((state) => [state.projects, state.updateProjectImageDir]),
   );
 

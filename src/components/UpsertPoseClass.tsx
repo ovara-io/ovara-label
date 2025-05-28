@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { useOvaraStore } from "@/hooks/useOvaraStore";
+import { useProjectStore } from "@/hooks/useProjectStore";
 import { useShallow } from "zustand/react/shallow";
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 
 export const UpsertPoseClass = ({ project }: Props) => {
   const [addPoseClass, deletePoseClass, addPoseKeypoint, deletePoseKeypoint] =
-    useOvaraStore(
+    useProjectStore(
       useShallow((s) => [
         s.addPoseClass,
         s.deletePoseClass,
