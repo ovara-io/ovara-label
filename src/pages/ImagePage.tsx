@@ -5,6 +5,7 @@ import { useImagePageStore } from "@/hooks/useImagePageStore";
 import { ImageCanvas } from "@/components/canvas/ImageCanvas";
 import { Sidebar } from "@/components/canvas/Sidebar";
 import { Toolbar } from "@/components/canvas/Toolbar";
+import { ImageSidebar } from "@/components/canvas/ImageSidebar";
 
 export const ImagePage = () => {
   const { id, index } = useParams<{ id: string; index: string }>();
@@ -52,7 +53,8 @@ export const ImagePage = () => {
   return (
     <>
       <div className="flex h-full w-full">
-        <Sidebar project={project} imagePath={imagePath} />
+        <ImageSidebar project={project} imagePath={imagePath} />
+        {/*<Sidebar project={project} imagePath={imagePath} />*/}
         <div className="relative flex h-full w-full flex-col overflow-auto">
           <Toolbar />
 

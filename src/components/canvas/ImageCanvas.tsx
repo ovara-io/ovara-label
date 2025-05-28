@@ -19,6 +19,7 @@ import {
 } from "@/classes";
 import { denorm, norm } from "@/lib/canvas-utils";
 import Konva from "konva";
+import { ANNOTATION_COLORS } from "@/consts";
 
 interface ImageCanvasProps {
   project: Project;
@@ -76,6 +77,17 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     imageType,
   ]);
 
+  function getNextColor(): string {
+    const anns = project.annotations[imagePath] ?? [];
+    const used = new Set(anns.map((a) => a.color));
+    const unused = ANNOTATION_COLORS.find((c) => !used.has(c));
+
+    return (
+      unused ??
+      ANNOTATION_COLORS[Math.floor(Math.random() * ANNOTATION_COLORS.length)]
+    );
+  }
+
   // === CREATE MODE ===
   function handleCreateMouseDown(pos: { x: number; y: number }) {
     if (placingKeypoints) {
@@ -98,6 +110,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
           classId: selectedClassId,
           bbox: placingKeypoints.baseBox,
           keypoints: updated,
+          color: getNextColor(),
         });
         setPlacingKeypoints(null);
       } else {
@@ -145,6 +158,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
             addImageAnnotation(project.id, imagePath, {
               classId: selectedClassId,
               bbox,
+              color: getNextColor(),
             });
           }
         }
@@ -190,6 +204,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         addImageAnnotation(project.id, imagePath, {
           classId: selectedClassId,
           bbox,
+          color: getNextColor(),
         });
       }
     }
@@ -206,7 +221,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     } else if (interactionMode === "edit") {
       // handleEditMouseDown(pos);
     } else if (interactionMode === "zoom") {
-      // handleZoomMouseDown(pos);
+      // handleZoomMouseDown(e);
     }
   };
 
@@ -247,6 +262,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         classId: selectedClassId,
         bbox: placingKeypoints.baseBox,
         keypoints: updated,
+        color: getNextColor(),
       });
       setPlacingKeypoints(null);
     } else {
@@ -280,13 +296,19 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
 
   const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
     e.evt.preventDefault();
-    const pos = e.target.getStage().getPointerPosition();
-    if (!pos) return;
 
-    if (placingKeypoints) {
-      skipKeypoint();
-    } else {
-      deleteAnnotationUnderCursor(pos);
+    if (interactionMode === "zoom") {
+      // resetZoom();
+      return;
+    } else if (interactionMode === "create") {
+      const pos = e.target.getStage().getPointerPosition();
+      if (!pos) return;
+
+      if (placingKeypoints) {
+        skipKeypoint();
+      } else {
+        deleteAnnotationUnderCursor(pos);
+      }
     }
   };
 
@@ -322,7 +344,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
                 y={y}
                 width={w}
                 height={h}
-                stroke="red"
+                stroke={ann.color}
                 strokeWidth={2}
               />
               <Text
@@ -340,7 +362,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
                         x={denorm(kp.x, renderSize.width)}
                         y={denorm(kp.y, renderSize.height)}
                         radius={3}
-                        fill="cyan"
+                        fill={ann.color}
                         stroke="black"
                         strokeWidth={1}
                       />
@@ -364,8 +386,8 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
             y={Math.min(drawingBox.start[1], mousePos[1])}
             width={Math.abs(drawingBox.start[0] - mousePos[0])}
             height={Math.abs(drawingBox.start[1] - mousePos[1])}
-            stroke="blue"
-            strokeWidth={1}
+            stroke="lime"
+            strokeWidth={2}
             dash={[4, 2]}
           />
         )}
@@ -379,7 +401,6 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
               height={denorm(placingKeypoints.baseBox[3], renderSize.height)}
               stroke="lime"
               strokeWidth={2}
-              dash={[4, 4]}
             />
             {placingKeypoints.points.map((kp, i) =>
               kp.visible !== 0 ? (
@@ -396,7 +417,6 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
             )}
           </Group>
         )}
-
         {mousePos && (
           <>
             <Line
@@ -418,10 +438,24 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
                 text={
                   placingKeypoints.keypoints[placingKeypoints.currentIdx].name
                 }
-                fontSize={16}
+                fontSize={14}
                 fill="yellow"
               />
             )}
+            {interactionMode === "create" &&
+              selectedClassId &&
+              !placingKeypoints && (
+                <Text
+                  x={mousePos[0] + 7.5}
+                  y={mousePos[1] - 20}
+                  text={
+                    project.classes.find((c) => c.id === selectedClassId)
+                      ?.name ?? "?"
+                  }
+                  fontSize={14}
+                  fill="yellow"
+                />
+              )}
           </>
         )}
       </Layer>

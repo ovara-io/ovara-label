@@ -30,13 +30,11 @@ export interface PoseProject extends BaseProject {
 export interface DetectionClass {
   id: string;
   name: string;
-  color?: string;
 }
 
 export interface PoseClass {
   id: string;
   name: string;
-  color?: string;
   keypoints: Keypoint[];
 }
 export interface Keypoint {
@@ -48,6 +46,7 @@ export type Annotation = DetectionAnnotation | PoseAnnotation;
 
 export interface DetectionAnnotation {
   classId: string;
+  color: string;
   bbox: [x: number, y: number, width: number, height: number];
 }
 

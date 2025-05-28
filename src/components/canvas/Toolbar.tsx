@@ -7,57 +7,98 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-import { Expand, Maximize2, Move, Pencil, ZoomIn } from "lucide-react";
+import {
+  Expand,
+  Maximize2,
+  MousePointerClick,
+  MousePointerSquareDashed,
+  Move,
+  Pencil,
+  ZoomIn,
+} from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export const Toolbar = () => {
   const imageType = useImagePageStore((s) => s.imageType);
   const setImageType = useImagePageStore((s) => s.setImageType);
   const interactionMode = useImagePageStore((s) => s.interactionMode);
   const setInteractionMode = useImagePageStore((s) => s.setInteractionMode);
+  const clickMode = useImagePageStore((s) => s.clickMode);
+  const setClickMode = useImagePageStore((s) => s.setClickMode);
 
   return (
     <TooltipProvider>
-      <div className="border-border flex justify-between border-b px-4 py-2">
+      <div className="flex justify-between border-b p-2">
+        <ToggleGroup
+          type="single"
+          value={imageType}
+          onValueChange={(val) => val && setImageType(val as "fit" | "stretch")}
+          className="gap-1"
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ToggleGroupItem value="fit" aria-label="Fit to screen">
+                  <Maximize2 className="h-4 w-4" />
+                </ToggleGroupItem>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Fit image to screen</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <ToggleGroupItem value="stretch" aria-label="Stretch to fill">
+                  <Expand className="h-4 w-4" />
+                </ToggleGroupItem>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Stretch image to fill area</TooltipContent>
+          </Tooltip>
+        </ToggleGroup>
+
         <div className="flex items-center gap-4">
           <ToggleGroup
             type="single"
-            value={imageType}
+            value={clickMode}
             onValueChange={(val) =>
-              val && setImageType(val as "fit" | "stretch")
+              val && setClickMode(val as "drag" | "click")
             }
+            className="gap-1"
           >
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
-                  <ToggleGroupItem value="fit" aria-label="Fit to screen">
-                    <Maximize2 className="h-4 w-4" />
+                  <ToggleGroupItem value="drag" aria-label="Click and drag">
+                    <MousePointerSquareDashed className="h-4 w-4" />
                   </ToggleGroupItem>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>Fit image to screen</TooltipContent>
+              <TooltipContent>Click and drag to draw</TooltipContent>
             </Tooltip>
 
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
-                  <ToggleGroupItem value="stretch" aria-label="Stretch to fill">
-                    <Expand className="h-4 w-4" />
+                  <ToggleGroupItem value="click" aria-label="Click twice">
+                    <MousePointerClick className="h-4 w-4" />
                   </ToggleGroupItem>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>Stretch image to fill area</TooltipContent>
+              <TooltipContent>Click twice to draw</TooltipContent>
             </Tooltip>
           </ToggleGroup>
-        </div>
 
-        <div className="flex items-center gap-4">
+          <Separator orientation={"vertical"} />
+
           <ToggleGroup
             type="single"
             value={interactionMode}
             onValueChange={(val) =>
               val && setInteractionMode(val as "create" | "edit" | "zoom")
             }
+            className="gap-1"
           >
             <Tooltip>
               <TooltipTrigger asChild>
