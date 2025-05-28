@@ -17,8 +17,6 @@ interface ImagePageStore {
   setSelectedClassId: (id: string) => void;
   clickMode: ClickMode;
   setClickMode: (mode: ClickMode) => void;
-  mousePos: [number, number] | null;
-  setMousePos: (pos: [number, number] | null) => void;
   drawingBox: { start: [number, number]; end: [number, number] } | null;
   setDrawingBox: (
     box: { start: [number, number]; end: [number, number] } | null,
@@ -36,8 +34,6 @@ export const useImagePageStore = create<ImagePageStore>((set) => ({
   setSelectedClassId: (id) => set({ selectedClassId: id }),
   clickMode: "drag",
   setClickMode: (mode) => set({ clickMode: mode }),
-  mousePos: null,
-  setMousePos: (pos) => set({ mousePos: pos }),
   drawingBox: null,
   setDrawingBox: (box) => set({ drawingBox: box }),
   placingKeypoints: null,
