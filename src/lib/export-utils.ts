@@ -1,5 +1,5 @@
 import { writeFile } from "@/ipc-renderer";
-import { PoseAnnotation, Project, KeypointVisibility } from "@/classes";
+import { PoseAnnotation, Project, Visibility } from "@/classes";
 
 export async function exportYoloLabels(project: Project): Promise<void> {
   const imageDir = project.imageDir;
@@ -44,7 +44,7 @@ export async function exportYoloLabels(project: Project): Promise<void> {
         const kptMap = new Map(poseAnn.keypoints.map((kp) => [kp.id, kp]));
         const fullKeypoints = keypoints.map((kpId) => {
           const kp = kptMap.get(kpId);
-          return kp && kp.visible === KeypointVisibility.LabeledVisible
+          return kp && kp.visible === Visibility.LabeledVisible
             ? `${kp.x} ${kp.y} ${kp.visible}`
             : `0 0 0`;
         });

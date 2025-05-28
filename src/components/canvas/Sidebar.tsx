@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   Annotation,
-  KeypointVisibility,
+  Visibility,
   PoseAnnotation,
   PoseClass,
   Project,
@@ -117,7 +117,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ project, imagePath }) => {
                         const match = (ann as PoseAnnotation).keypoints.find(
                           (k) =>
                             k.id === kp.id &&
-                            k.visible === KeypointVisibility.LabeledVisible,
+                            k.visible === Visibility.LabeledVisible,
                         );
                         return (
                           <li key={kp.id}>

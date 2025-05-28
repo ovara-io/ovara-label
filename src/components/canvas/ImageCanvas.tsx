@@ -11,13 +11,8 @@ import {
 } from "react-konva";
 import { useProjectStore } from "@/hooks/useProjectStore";
 import { useImagePageStore } from "@/hooks/useImagePageStore";
-import {
-  KeypointVisibility,
-  PoseAnnotation,
-  PoseClass,
-  Project,
-} from "@/classes";
-import { denorm, norm } from "@/lib/canvas-utils";
+import { Visibility, PoseAnnotation, PoseClass, Project } from "@/classes";
+import { denorm, imageToScreen, norm, screenToImage } from "@/lib/canvas-utils";
 import Konva from "konva";
 import { ANNOTATION_COLORS } from "@/consts";
 
@@ -48,6 +43,16 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
   const interactionMode = useImagePageStore((s) => s.interactionMode);
 
   const [mousePos, setMousePos] = useState<[number, number] | null>(null);
+  const [viewport, setViewport] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [zoomBox, setZoomBox] = useState<{
+    start: [number, number];
+    end: [number, number];
+  } | null>(null);
 
   const renderSize = useMemo(() => {
     const imageAspect = image.width / image.height;
@@ -76,6 +81,8 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     containerSize.height,
     imageType,
   ]);
+  const canvasWidth = renderSize.width;
+  const canvasHeight = renderSize.height;
 
   function getNextColor(): string {
     const anns = project.annotations[imagePath] ?? [];
@@ -88,17 +95,41 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     );
   }
 
+  function toNormalizedImageCoords(
+    screenX: number,
+    screenY: number,
+  ): [number, number] {
+    const [imgX, imgY] = screenToImage(
+      screenX,
+      screenY,
+      containerSize,
+      viewport,
+    );
+    return [norm(imgX, renderSize.width), norm(imgY, renderSize.height)];
+  }
+
+  function toScreenCoords(normX: number, normY: number): [number, number] {
+    const imgX = denorm(normX, renderSize.width);
+    const imgY = denorm(normY, renderSize.height);
+    return imageToScreen(imgX, imgY, containerSize, viewport);
+  }
+
+  // TODO project by default, unproject when rendering.. right? unproject → norm before storing, then when rendering, unproject and denorm
+
+  // TODO should we actually project in setDrawingBox calls too..? probably...
   // === CREATE MODE ===
   function handleCreateMouseDown(pos: { x: number; y: number }) {
     if (placingKeypoints) {
       const current = placingKeypoints.keypoints[placingKeypoints.currentIdx];
+      const [x, y] = toNormalizedImageCoords(pos.x, pos.y);
+
       const updated = [
         ...placingKeypoints.points,
         {
           id: current.id,
-          x: norm(pos.x, renderSize.width),
-          y: norm(pos.y, renderSize.height),
-          visible: KeypointVisibility.LabeledVisible,
+          x,
+          y,
+          visible: Visibility.LabeledVisible,
         },
       ];
 
@@ -139,6 +170,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         const height = Math.abs(y2 - y1);
 
         if (width >= 5 && height >= 5) {
+          // TODO project here
           const bbox: [number, number, number, number] = [
             norm(x, renderSize.width),
             norm(y, renderSize.height),
@@ -185,6 +217,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     const height = Math.abs(y2 - y1);
 
     if (width >= 5 && height >= 5) {
+      // TODO project here
       const bbox: [number, number, number, number] = [
         norm(x, renderSize.width),
         norm(y, renderSize.height),
@@ -212,6 +245,10 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     setDrawingBox(null);
   }
 
+  const handleZoomMouseDown = (pos: { x: number; y: number }) => {
+    setZoomBox({ start: [pos.x, pos.y], end: [pos.x, pos.y] });
+  };
+
   const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const pos = e.target.getStage().getPointerPosition();
     if (!pos || e.evt.button !== 0 || e.evt.ctrlKey) return;
@@ -221,8 +258,13 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     } else if (interactionMode === "edit") {
       // handleEditMouseDown(pos);
     } else if (interactionMode === "zoom") {
-      // handleZoomMouseDown(e);
+      handleZoomMouseDown(pos);
     }
+  };
+
+  const handleZoomMouseMove = (pos: { x: number; y: number }) => {
+    if (!zoomBox) return;
+    setZoomBox({ ...zoomBox, end: [pos.x, pos.y] });
   };
 
   const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -233,8 +275,24 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
         handleCreateMouseMove(pos);
       } else if (interactionMode === "edit") {
         // handleEditMouseMove(pos);
+      } else if (interactionMode === "zoom") {
+        handleZoomMouseMove(pos);
       }
     }
+  };
+
+  const handleZoomMouseUp = () => {
+    if (!zoomBox) return;
+    const [x1, y1] = zoomBox.start;
+    const [x2, y2] = zoomBox.end;
+    const x = Math.min(x1, x2);
+    const y = Math.min(y1, y2);
+    const width = Math.abs(x2 - x1);
+    const height = Math.abs(y2 - y1);
+    if (width > 15 && height > 15) {
+      setViewport({ x, y, width, height });
+    }
+    setZoomBox(null);
   };
 
   const handleMouseUp = () => {
@@ -242,10 +300,12 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       handleCreateMouseUp();
     } else if (interactionMode === "edit") {
       // handleEditMouseUp();
+    } else if (interactionMode === "zoom") {
+      handleZoomMouseUp();
     }
   };
 
-  const skipKeypoint = () => {
+  const placeKeypoint = () => {
     if (!placingKeypoints) return;
 
     const current = placingKeypoints.keypoints[placingKeypoints.currentIdx];
@@ -280,6 +340,7 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       .map((ann, i) => ({ ...ann, i }))
       .reverse()
       .find((ann) => {
+        // TODO project here
         const [x, y, w, h] = ann.bbox;
         return (
           pos.x >= denorm(x, renderSize.width) &&
@@ -294,28 +355,39 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
     }
   };
 
+  const resetZoom = () => {
+    setViewport(null);
+    setZoomBox(null);
+  };
+
   const handleContextMenu = (e: Konva.KonvaEventObject<MouseEvent>) => {
     e.evt.preventDefault();
 
     if (interactionMode === "zoom") {
-      // resetZoom();
+      resetZoom();
       return;
     } else if (interactionMode === "create") {
       const pos = e.target.getStage().getPointerPosition();
       if (!pos) return;
 
       if (placingKeypoints) {
-        skipKeypoint();
+        placeKeypoint();
       } else {
         deleteAnnotationUnderCursor(pos);
       }
     }
   };
-
+  const [topLeftX, topLeftY] = imageToScreen(0, 0, containerSize, viewport);
+  const [bottomRightX, bottomRightY] = imageToScreen(
+    renderSize.width,
+    renderSize.height,
+    containerSize,
+    viewport,
+  );
   return (
     <Stage
-      width={renderSize.width}
-      height={renderSize.height}
+      width={canvasWidth}
+      height={canvasHeight}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -325,16 +397,19 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
       <Layer>
         <KonvaImage
           image={image}
-          width={renderSize.width}
-          height={renderSize.height}
+          x={topLeftX}
+          y={topLeftY}
+          width={bottomRightX - topLeftX}
+          height={bottomRightY - topLeftY}
         />
 
+        {/*place existing bounding boxes and keypoints from projection*/}
         {(project.annotations?.[imagePath] ?? []).map((ann, i) => {
           const [nx, ny, nw, nh] = ann.bbox;
-          const x = denorm(nx, renderSize.width);
-          const y = denorm(ny, renderSize.height);
-          const w = denorm(nw, renderSize.width);
-          const h = denorm(nh, renderSize.height);
+          const [x, y] = toScreenCoords(nx, ny);
+          const [x2, y2] = toScreenCoords(nx + nw, ny + nh);
+          const w = x2 - x;
+          const h = y2 - y;
 
           const cls = project.classes.find((c) => c.id === ann.classId);
           return (
@@ -355,31 +430,86 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
                 fill="white"
               />
               {project.modelType === "pose" &&
-                (ann as PoseAnnotation).keypoints?.map((kp, j) =>
-                  kp.visible === 0 ? null : (
+                (ann as PoseAnnotation).keypoints?.map((kp, j) => {
+                  if (kp.visible === 0) return null;
+
+                  const [x, y] = toScreenCoords(kp.x, kp.y);
+                  return (
                     <React.Fragment key={j}>
                       <Circle
-                        x={denorm(kp.x, renderSize.width)}
-                        y={denorm(kp.y, renderSize.height)}
+                        x={x}
+                        y={y}
                         radius={3}
                         fill={ann.color}
                         stroke="black"
                         strokeWidth={1}
                       />
                       <Text
-                        x={denorm(kp.x, renderSize.width) + 5}
-                        y={denorm(kp.y, renderSize.height) - 10}
+                        x={x + 5}
+                        y={y - 10}
                         text={(cls as PoseClass)?.keypoints[j]?.name ?? kp.id}
                         fontSize={10}
                         fill="white"
                       />
                     </React.Fragment>
-                  ),
-                )}
+                  );
+                })}
             </React.Fragment>
           );
         })}
 
+        {/*in progress pose bounding box and keypoints from projection*/}
+        {placingKeypoints && (
+          <Group>
+            <Rect
+              x={
+                toScreenCoords(
+                  placingKeypoints.baseBox[0],
+                  placingKeypoints.baseBox[1],
+                )[0]
+              }
+              y={
+                toScreenCoords(
+                  placingKeypoints.baseBox[0],
+                  placingKeypoints.baseBox[1],
+                )[1]
+              }
+              width={
+                toScreenCoords(
+                  placingKeypoints.baseBox[2],
+                  placingKeypoints.baseBox[3],
+                )[0]
+              }
+              height={
+                toScreenCoords(
+                  placingKeypoints.baseBox[2],
+                  placingKeypoints.baseBox[3],
+                )[1]
+              }
+              stroke="lime"
+              strokeWidth={2}
+            />
+            {placingKeypoints.points.map((kp, i) => {
+              if (kp.visible === 0) return null;
+
+              const [x, y] = toScreenCoords(kp.x, kp.y);
+
+              return (
+                <Circle
+                  key={i}
+                  x={x}
+                  y={y}
+                  radius={3}
+                  fill="lime"
+                  stroke="black"
+                  strokeWidth={1}
+                />
+              );
+            })}
+          </Group>
+        )}
+
+        {/*drawing box natively in screen space*/}
         {drawingBox?.start && mousePos && (
           <Rect
             x={Math.min(drawingBox.start[0], mousePos[0])}
@@ -392,41 +522,29 @@ export const ImageCanvas: React.FC<ImageCanvasProps> = ({
           />
         )}
 
-        {placingKeypoints && (
-          <Group>
-            <Rect
-              x={denorm(placingKeypoints.baseBox[0], renderSize.width)}
-              y={denorm(placingKeypoints.baseBox[1], renderSize.height)}
-              width={denorm(placingKeypoints.baseBox[2], renderSize.width)}
-              height={denorm(placingKeypoints.baseBox[3], renderSize.height)}
-              stroke="lime"
-              strokeWidth={2}
-            />
-            {placingKeypoints.points.map((kp, i) =>
-              kp.visible !== 0 ? (
-                <Circle
-                  key={i}
-                  x={denorm(kp.x, renderSize.width)}
-                  y={denorm(kp.y, renderSize.height)}
-                  radius={3}
-                  fill="lime"
-                  stroke="black"
-                  strokeWidth={1}
-                />
-              ) : null,
-            )}
-          </Group>
+        {/*zoom rect natively in screen space*/}
+        {zoomBox?.start && mousePos && (
+          <Rect
+            x={Math.min(zoomBox.start[0], mousePos[0])}
+            y={Math.min(zoomBox.start[1], mousePos[1])}
+            width={Math.abs(zoomBox.start[0] - mousePos[0])}
+            height={Math.abs(zoomBox.start[1] - mousePos[1])}
+            stroke="cyan"
+            strokeWidth={2}
+            dash={[4, 2]}
+          />
         )}
+        {/*render where the mouse is with 1 horizontal and 1 vertical line natively in screen space*/}
         {mousePos && (
           <>
             <Line
-              points={[0, mousePos[1], renderSize.width, mousePos[1]]}
+              points={[0, mousePos[1], canvasWidth, mousePos[1]]}
               stroke="white"
               dash={[4, 4]}
               opacity={0.75}
             />
             <Line
-              points={[mousePos[0], 0, mousePos[0], renderSize.height]}
+              points={[mousePos[0], 0, mousePos[0], canvasHeight]}
               stroke="white"
               dash={[4, 4]}
               opacity={0.75}

@@ -5,7 +5,7 @@ import {
   Annotation,
   DetectionAnnotation,
   DetectionClass,
-  KeypointVisibility,
+  Visibility,
   PoseAnnotation,
   PoseClass,
   Project,
@@ -61,8 +61,7 @@ const PlacedClass = ({ project, cls, ann }: PlacedClassProps) => {
               {(cls as PoseClass).keypoints.map((kp) => {
                 const match = (ann as PoseAnnotation).keypoints.find(
                   (k) =>
-                    k.id === kp.id &&
-                    k.visible === KeypointVisibility.LabeledVisible,
+                    k.id === kp.id && k.visible === Visibility.LabeledVisible,
                 );
                 if (!match) return null;
                 return <li key={kp.id}>{kp.name}</li>;

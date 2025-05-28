@@ -49,7 +49,7 @@ export interface PoseAnnotation extends DetectionAnnotation {
 
 export type Annotation = DetectionAnnotation | PoseAnnotation;
 
-export enum KeypointVisibility {
+export enum Visibility {
   NotLabeled = 0,
   LabeledNotVisible = 1,
   LabeledVisible = 2,
@@ -59,5 +59,5 @@ export interface KeypointAnnotation {
   id: string;
   x: number;
   y: number;
-  visible: KeypointVisibility;
+  visible: Visibility;
 }
