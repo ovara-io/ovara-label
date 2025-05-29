@@ -1,40 +1,46 @@
 # OvaraLabel
 
-OvaraLabel is a cross-platform image annotation tool for computer vision projects, built with modern web technologies.
+OvaraLabel is a modern, cross-platform image annotation tool designed for computer vision workflows. Built with modern web technologies, it supports fast, efficient, and flexible labeling.
 
-This project is bootstrapped with [Electron Forge](https://www.electronforge.io/) using:
+This project is bootstrapped with [Electron Forge](https://www.electronforge.io/).
 
-- ⚡️ Vite
-- 🧠 TypeScript
-- 💅 Prettier & ESLint
-- ⚛️ React
-- 🧶 Yarn Modern (Berry) with `node-modules`
+## 🔧 Tech Stack
 
-## 🛠️ Running Locally
+* ⚡️ Vite
+* ⚛️ React
+* 🧠 TypeScript
+* 💅 Prettier & ESLint
+* 🧶 Yarn (Modern/Berry)
+
+---
+
+## 🛠️ Getting Started Locally
 
 ```bash
 yarn
 yarn start
 ```
 
-This will install dependencies, and start the Electron app in development mode.
+This installs all dependencies and launches the app in development mode.
 
 ---
 
-# Contributing to OvaraLabel
+# 🤝 Contributing to OvaraLabel
 
-## Getting Started
+## Setup
 
-1. Fork this repo
+1. Fork this repository
 2. Install dependencies with `yarn`
-3. Run locally with `yarn start`
+3. Start the app with `yarn start`
 
-## Guidelines
+## Contribution Guidelines
 
-- Follow the existing code style.
-- Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g. `feat:`, `fix:`).
-- Submit pull requests to the `main` branch.
+* Follow the existing code style (Prettier + ESLint enforced)
+* Use [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`)
+* Target all pull requests to the `main` branch
 
-## Questions?
+## Need Help?
 
-Open an issue or start a thread in GitHub Discussions.
+Open an issue in [GitHub](https://github.com/ovara-io/ovara-label).
+
+---
