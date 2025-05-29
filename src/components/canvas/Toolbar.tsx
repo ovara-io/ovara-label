@@ -29,36 +29,44 @@ export const Toolbar = () => {
   return (
     <TooltipProvider>
       <div className="flex justify-between border-b p-2">
-        <ToggleGroup
-          type="single"
-          value={imageType}
-          onValueChange={(val) => val && setImageType(val as "fit" | "stretch")}
-          className="gap-1"
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <ToggleGroupItem value="fit" aria-label="Fit to screen">
-                  <Maximize2 className="h-4 w-4" />
-                </ToggleGroupItem>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Fit image to screen</TooltipContent>
-          </Tooltip>
+        <div className="flex items-center gap-4">
+          <ToggleGroup
+            type="single"
+            value={imageType}
+            onValueChange={(val) =>
+              val && setImageType(val as "fit" | "stretch")
+            }
+            className="gap-1"
+          >
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToggleGroupItem value="fit" aria-label="Fit to screen">
+                    <Maximize2 className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                Fit image, preserving aspect ratio
+              </TooltipContent>
+            </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <ToggleGroupItem value="stretch" aria-label="Stretch to fill">
-                  <Expand className="h-4 w-4" />
-                </ToggleGroupItem>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Stretch image to fill area</TooltipContent>
-          </Tooltip>
-        </ToggleGroup>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <ToggleGroupItem value="stretch" aria-label="Stretch to fill">
+                    <Expand className="h-4 w-4" />
+                  </ToggleGroupItem>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Stretch image to fill screen</TooltipContent>
+            </Tooltip>
+          </ToggleGroup>
+          <Separator orientation={"vertical"} />
+        </div>
 
         <div className="flex items-center gap-4">
+          <Separator orientation={"vertical"} />
           <ToggleGroup
             type="single"
             value={clickMode}
@@ -109,7 +117,7 @@ export const Toolbar = () => {
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                Create: Draw boxes or place keypoints
+                Create: Left-click to draw, Right-click to remove
               </TooltipContent>
             </Tooltip>
 
@@ -121,7 +129,9 @@ export const Toolbar = () => {
                   </ToggleGroupItem>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>Edit: Move boxes or keypoints</TooltipContent>
+              <TooltipContent>
+                Edit: Move boxes or keypoints [TODO: NOT YET IMPLEMENTED]
+              </TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -133,7 +143,7 @@ export const Toolbar = () => {
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                Zoom: Left-click to zoom in, right-click to zoom out
+                Zoom: Left-click to zoom in, right-click to reset zoom
               </TooltipContent>
             </Tooltip>
           </ToggleGroup>

@@ -9,4 +9,6 @@
 9. interpolate bb/kps between 2 images? 
 10. cycle visibility of keypoints?
 11. preload imgs? +-1 page ALWAYS
-12. every annotation in pose mode must have a bounding box and a keypoint. do not allow picking a class with 0 keypoints
+12. every annotation in pose mode must have a bounding box and a keypoint. do not allow picking a class with 0 keypoints, do not allow to skip all keypoints
+13. delete project
+14. import annotations
