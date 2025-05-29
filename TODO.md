@@ -12,3 +12,6 @@
 12. every annotation in pose mode must have a bounding box and a keypoint. do not allow picking a class with 0 keypoints, do not allow to skip all keypoints
 13. delete project
 14. import annotations
+15. zoom respects draw mode (click vs drag)
+16. add keybinds to toolbar settings
+17. mouse wheel zooms in and out
