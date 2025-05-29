@@ -40,7 +40,7 @@ export interface Keypoint {
 export interface DetectionAnnotation {
   classId: string;
   color: string;
-  bbox: [x: number, y: number, width: number, height: number];
+  bbox: Box;
 }
 
 export interface PoseAnnotation extends DetectionAnnotation {
@@ -60,4 +60,11 @@ export interface KeypointAnnotation {
   x: number;
   y: number;
   visible: Visibility;
+}
+
+export interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }

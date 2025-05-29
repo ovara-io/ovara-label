@@ -5,10 +5,10 @@ import {
   Annotation,
   DetectionAnnotation,
   DetectionClass,
-  Visibility,
   PoseAnnotation,
   PoseClass,
   Project,
+  Visibility,
 } from "@/classes";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -37,24 +37,48 @@ import {
   CollapsibleTrigger,
 } from "../ui/collapsible";
 import { BookOpen, Bot, ChevronRight } from "lucide-react";
+import { useProjectStore } from "@/hooks/useProjectStore";
 
-interface PlacedClassProps {
+interface ImageAnnotationProps {
   project: Project;
   cls: DetectionClass;
   ann: DetectionAnnotation;
+  imagePath: string;
+  index: number;
 }
 
-const PlacedClass = ({ project, cls, ann }: PlacedClassProps) => {
+export const ImageAnnotation: React.FC<ImageAnnotationProps> = ({
+  project,
+  cls,
+  ann,
+  imagePath,
+  index,
+}) => {
+  const deleteImageAnnotationByIndex = useProjectStore(
+    (s) => s.deleteImageAnnotationByIndex,
+  );
+
   return (
     <SidebarMenuSub key={cls.id}>
-      <SidebarMenuSubButton className={"h-full py-1"}>
-        <SidebarMenuSubItem>
-          <div className="flex items-center gap-2">
-            <div
-              className="h-3 w-3 border"
-              style={{ backgroundColor: ann.color }}
-            />
-            <span>{cls.name}</span>
+      <SidebarMenuSubButton className="h-full py-1">
+        <SidebarMenuSubItem className={"w-full"}>
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div
+                className="h-3 w-3 border"
+                style={{ backgroundColor: ann.color }}
+              />
+              <span>{cls.name}</span>
+            </div>
+            <Button
+              size="sm"
+              variant={"destructive"}
+              onClick={() =>
+                deleteImageAnnotationByIndex(project.id, imagePath, index)
+              }
+            >
+              -
+            </Button>
           </div>
           {project.modelType === "pose" && (
             <ul className="text-muted-foreground ml-4.75 list-disc text-xs">
@@ -176,9 +200,11 @@ export const ImageSidebar: React.FC<SidebarProps> = ({
                         (c) => c.id === ann.classId,
                       );
                       return (
-                        <PlacedClass
+                        <ImageAnnotation
                           key={idx}
                           project={project}
+                          imagePath={imagePath}
+                          index={idx}
                           cls={cls}
                           ann={ann}
                         />

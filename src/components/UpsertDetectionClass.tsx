@@ -34,7 +34,7 @@ export const UpsertDetectionClass = ({ project }: Props) => {
 
   return (
     <div className="space-y-4">
-      <h2 className={"text-xl"}>New Class Name</h2>
+      <h2 className={"text-xl"}>New Class</h2>
       <Input
         value={newClassName}
         onChange={(e) => setNewClassName(e.target.value)}
@@ -43,7 +43,7 @@ export const UpsertDetectionClass = ({ project }: Props) => {
 
       <Separator />
 
-      <h2 className="text-xl">Defined Classes</h2>
+      <h2 className="text-xl">Classes</h2>
       {project.classes.map((c) => (
         <div key={c.id} className="flex justify-between rounded border p-3">
           <strong>{c.name}</strong>

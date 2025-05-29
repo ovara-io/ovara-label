@@ -33,12 +33,12 @@ export async function exportYoloLabels(project: Project): Promise<void> {
       const classIdx = classMap.get(ann.classId);
       if (classIdx === undefined) continue;
 
-      const [x, y, w, h] = ann.bbox;
-      const cx = x + w / 2;
-      const cy = y + h / 2;
+      const { x, y, width, height } = ann.bbox;
+      const cx = x + width / 2;
+      const cy = y + height / 2;
 
       if (project.modelType === "detection") {
-        lines.push(`${classIdx} ${cx} ${cy} ${w} ${h}`);
+        lines.push(`${classIdx} ${cx} ${cy} ${width} ${height}`);
       } else if (project.modelType === "pose") {
         const poseAnn = ann as PoseAnnotation;
         const kptMap = new Map(poseAnn.keypoints.map((kp) => [kp.id, kp]));
@@ -49,7 +49,7 @@ export async function exportYoloLabels(project: Project): Promise<void> {
             : `0 0 0`;
         });
         lines.push(
-          `${classIdx} ${cx} ${cy} ${w} ${h} ${fullKeypoints.join(" ")}`,
+          `${classIdx} ${cx} ${cy} ${width} ${height} ${fullKeypoints.join(" ")}`,
         );
       }
     }

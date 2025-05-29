@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { Keypoint, KeypointAnnotation } from "@/classes";
+import { Box, Keypoint, KeypointAnnotation } from "@/classes";
 
 export interface KeypointState {
   keypoints: Keypoint[];
   currentIdx: number;
-  baseBox: [number, number, number, number];
+  baseBox: Box;
   points: KeypointAnnotation[];
 }
 

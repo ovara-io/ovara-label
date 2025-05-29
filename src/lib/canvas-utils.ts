@@ -8,28 +8,28 @@ export function denorm(value: number, size: number): number {
   return value * size;
 }
 
-// Projects image-space coordinates into screen-space, using viewport and container size
+// Projects image-space coordinates into screen-space, using viewport and render size
 export function imageToScreen(
   x: number,
   y: number,
-  containerSize: { width: number; height: number },
+  renderSize: { width: number; height: number }, // renamed from containerSize
   viewport: { x: number; y: number; width: number; height: number } | null,
 ): [number, number] {
   if (!viewport) return [x, y];
-  const scaleX = containerSize.width / viewport.width;
-  const scaleY = containerSize.height / viewport.height;
+  const scaleX = renderSize.width / viewport.width;
+  const scaleY = renderSize.height / viewport.height;
   return [(x - viewport.x) * scaleX, (y - viewport.y) * scaleY];
 }
 
-// Unprojects screen-space coordinates into image-space, using viewport and container size
+// Unprojects screen-space coordinates into image-space, using viewport and render size
 export function screenToImage(
   screenX: number,
   screenY: number,
-  containerSize: { width: number; height: number },
+  renderSize: { width: number; height: number }, // renamed from containerSize
   viewport: { x: number; y: number; width: number; height: number } | null,
 ): [number, number] {
   if (!viewport) return [screenX, screenY];
-  const scaleX = containerSize.width / viewport.width;
-  const scaleY = containerSize.height / viewport.height;
+  const scaleX = renderSize.width / viewport.width;
+  const scaleY = renderSize.height / viewport.height;
   return [screenX / scaleX + viewport.x, screenY / scaleY + viewport.y];
 }
